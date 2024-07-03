@@ -3,7 +3,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import mongoose, { Types } from 'mongoose';
 import { PasswordCredential } from 'src/schemas/password-credential.schema';
 import * as bcrypt from 'bcrypt';
-import { UserService } from 'src/user/user.service';
+import { UserService } from 'src/users/users.service';
 import { JwtService } from '@nestjs/jwt';
 import { jwtConstants } from './constants/jwt.constants';
 import { RefreshToken } from 'src/schemas/refresh-token.schema';
@@ -70,7 +70,23 @@ export class AuthService {
       { userId: userIdAsObjectId },
       { userId: userIdAsObjectId, hashedRefreshToken },
       { upsert: true }
-    )
+    );
+  }
+  
+  async revokeRefreshToken(userId: string | Types.ObjectId) {
+    const userIdAsObjectId = new mongoose.Types.ObjectId(userId);
+    await this.refreshTokenModel.findOneAndUpdate(
+      { userId: userIdAsObjectId },
+      { hashedRefreshToken: null }
+    );
+  }
+
+  async verifyRefreshToken(userId: string | Types.ObjectId, refreshToken: string) {
+    const token = await this.refreshTokenModel.findOne({ userId: new mongoose.Types.ObjectId(userId) });
+    if (token && await bcrypt.compare(refreshToken, token.hashedRefreshToken)) {
+      return true;
+    }
+    return false;
   }
 
   async refreshAccessToken(user: TokenPayload) {

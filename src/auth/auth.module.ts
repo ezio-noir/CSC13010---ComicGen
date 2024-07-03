@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { AuthController } from './auth.controller';
-import { UserModule } from 'src/user/user.module';
+import { UserModule } from 'src/users/users.module';
 import { SharedModule } from 'src/shared/shared.module';
 import { FileSystemModule } from 'src/file-system/file-system.module';
 import { AuthService } from './auth.service';

@@ -1,6 +1,6 @@
-import { BadRequestException, Body, Controller, HttpCode, HttpStatus, InternalServerErrorException, Logger, Post, Req, Res, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Get, HttpCode, HttpStatus, InternalServerErrorException, Logger, Post, Req, Res, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
 import { RegisterDto } from './dto/register.dto';
-import { UserService } from 'src/user/user.service';
+import { UserService } from 'src/users/users.service';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { MulterError, diskStorage } from 'multer';
 import { extname } from 'path';
@@ -9,7 +9,6 @@ import { LocalAuthGuard } from './guard/local-auth.guard';
 import { AuthService } from './auth.service';
 import { Request, Response } from 'express';
 import { RefreshTokenGuard } from './guard/refresh-token-guard';
-
 
 @Controller('auth')
 export class AuthController {
@@ -52,7 +51,7 @@ export class AuthController {
         }
         const newUser = await this.userService.createUser({
           ...dto,
-          avatar: file.path,
+          avatar: file?.path,
         });
         this.logger.log(`New user created: ${newUser._id}`);
         return {
@@ -66,7 +65,7 @@ export class AuthController {
         };
       } catch (error) {
         this.logger.error('Error creating user.', error.stack);
-        this.fileSystemService.removeFile(file.path);
+        if (file) this.fileSystemService.removeFile(file.path);
 
         if (error instanceof BadRequestException) {
           throw error;          

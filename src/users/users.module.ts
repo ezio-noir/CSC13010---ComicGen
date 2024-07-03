@@ -1,8 +1,9 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
-import { UserService } from './user.service';
+import { UserService } from './users.service';
 import { User, UserSchema } from 'src/schemas/user.schema';
 import { PasswordCredential, PasswordCredentialSchema } from 'src/schemas/password-credential.schema';
+import { UserController } from './users.controller';
 
 @Module({
   imports: [
@@ -19,5 +20,6 @@ import { PasswordCredential, PasswordCredentialSchema } from 'src/schemas/passwo
   ],
   providers: [UserService],
   exports: [UserService],
+  controllers: [UserController],
 })
 export class UserModule {}

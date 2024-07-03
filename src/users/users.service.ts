@@ -13,6 +13,10 @@ export class UserService {
         @InjectModel(PasswordCredential.name) private passwordCredentialModel: mongoose.Model<PasswordCredential>,
     ) {}
 
+    getUserById(userId: string | mongoose.Types.ObjectId) {
+        return this.userModel.findById(new mongoose.Types.ObjectId(userId));
+    }
+
     getUserByUsername(username: string) {
         return this.userModel.findOne({ username });
     }
