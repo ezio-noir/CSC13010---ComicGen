@@ -4,6 +4,7 @@ import { UserService } from './users.service';
 import { User, UserSchema } from 'src/schemas/user.schema';
 import { PasswordCredential, PasswordCredentialSchema } from 'src/schemas/password-credential.schema';
 import { UserController } from './users.controller';
+import { FileSystemModule } from 'src/file-system/file-system.module';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { UserController } from './users.controller';
         schema: PasswordCredentialSchema,
       },
     ]),
+    FileSystemModule,
   ],
   providers: [UserService],
   exports: [UserService],

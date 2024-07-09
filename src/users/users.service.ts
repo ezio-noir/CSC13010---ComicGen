@@ -5,6 +5,7 @@ import { User } from 'src/schemas/user.schema';
 import * as bcrypt from 'bcrypt';
 import { PasswordCredential } from 'src/schemas/password-credential.schema';
 import { CreateUserDto } from './dto/create-user.dto';
+import { UpdateUserDetailsDto } from './dto/update-user-details.dto';
 
 @Injectable()
 export class UserService {
@@ -38,5 +39,18 @@ export class UserService {
         });
 
         return await newUser.save();
+    }
+
+    async updateUser(
+        userId: mongoose.Types.ObjectId,
+        updateUserDto: UpdateUserDetailsDto
+    ) {
+        console.log(updateUserDto);
+        return await this.userModel.findByIdAndUpdate(
+            userId,
+            {
+                ...updateUserDto,
+            }
+        );
     }
 }
