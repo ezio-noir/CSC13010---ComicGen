@@ -1,4 +1,4 @@
-import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 
 @Schema()
 export class PasswordCredential {
@@ -9,4 +9,5 @@ export class PasswordCredential {
   hashedPassword: string;
 }
 
-export const PasswordCredentialSchema = SchemaFactory.createForClass(PasswordCredential);
+export const PasswordCredentialSchema =
+  SchemaFactory.createForClass(PasswordCredential);

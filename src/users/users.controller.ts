@@ -1,5 +1,19 @@
-import { BadRequestException, Body, Controller, Get, InternalServerErrorException, Logger, NotFoundException, Param, Put, Req, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
-import { UserService } from './users.service';
+import {
+  BadRequestException,
+  Body,
+  Controller,
+  Get,
+  InternalServerErrorException,
+  Logger,
+  NotFoundException,
+  Param,
+  Put,
+  Req,
+  UploadedFile,
+  UseGuards,
+  UseInterceptors,
+} from '@nestjs/common';
+import { UsersService } from './users.service';
 import { AccessTokenGuard } from 'src/auth/guard/access-token.guard';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { Multer, MulterError, diskStorage } from 'multer';
@@ -9,18 +23,18 @@ import { EditUserDetailsDto } from './dto/edit-user-details.dto';
 import mongoose from 'mongoose';
 
 @Controller('users')
-export class UserController {
-  private readonly logger = new Logger(UserController.name);
+export class UsersController {
+  private readonly logger = new Logger(UsersController.name);
 
   constructor(
-    private userService: UserService,
+    private usersService: UsersService,
     private fileSystemService: FileSystemService,
   ) {}
 
   @UseGuards(AccessTokenGuard)
   @Get(':userId')
   async getUserById(@Param('userId') userId) {
-    const user = await this.userService.getUserById(userId);
+    const user = await this.usersService.getUserById(userId);
     if (!user) {
       throw new NotFoundException('User does not exist.');
     }
@@ -29,7 +43,7 @@ export class UserController {
         id: user._id,
         avatar: user.avatar,
         displayName: user.displayName,
-      }
+      },
     };
   }
 
@@ -43,7 +57,7 @@ export class UserController {
           const uniqueName = Date.now() + '-' + Math.round(Math.random() * 1e9);
           const ext = extname(file.originalname);
           cb(null, `${uniqueName}${ext}`);
-        }
+        },
       }),
       fileFilter: (req, file, cb) => {
         if (file.originalname.match(/^.*\.(jpg|webp|png|jpeg)$/))
@@ -52,7 +66,7 @@ export class UserController {
           cb(new MulterError('LIMIT_UNEXPECTED_FILE', 'image'), false);
         }
       },
-    })
+    }),
   )
   async editUserDetails(
     @Req() req,
@@ -64,16 +78,18 @@ export class UserController {
       const extractedUserId = new mongoose.Types.ObjectId(req.user.id);
       const userIdAsObjectId = new mongoose.Types.ObjectId(userId);
       if (!extractedUserId.equals(userIdAsObjectId)) {
-        throw new BadRequestException('Attempting to modify another user\'s details.');
+        throw new BadRequestException(
+          "Attempting to modify another user's details.",
+        );
       }
-      const updatedUser = await this.userService.updateUser(
+      const updatedUser = await this.usersService.updateUser(
         new mongoose.Types.ObjectId(userIdAsObjectId),
         {
           ...dto,
           avatar: file?.path,
         },
       );
-      return  {
+      return {
         message: 'User details updated successfully.',
       };
     } catch (error) {
@@ -81,7 +97,7 @@ export class UserController {
       if (file) this.fileSystemService.removeFile(file.path);
 
       if (error instanceof BadRequestException) {
-        throw error;          
+        throw error;
       }
       throw new InternalServerErrorException('Error creating user.');
     }

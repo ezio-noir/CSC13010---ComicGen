@@ -1,5 +1,4 @@
-import { ArgumentMetadata, ParseFilePipe, PipeTransform } from "@nestjs/common";
-
+import { ArgumentMetadata, ParseFilePipe, PipeTransform } from '@nestjs/common';
 
 export class OptionalValidationPipe implements PipeTransform {
   constructor(private readonly filePipe: ParseFilePipe) {}

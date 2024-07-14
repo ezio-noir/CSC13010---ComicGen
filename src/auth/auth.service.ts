@@ -3,25 +3,27 @@ import { InjectModel } from '@nestjs/mongoose';
 import mongoose, { Types } from 'mongoose';
 import { PasswordCredential } from 'src/schemas/password-credential.schema';
 import * as bcrypt from 'bcrypt';
-import { UserService } from 'src/users/users.service';
+import { UsersService } from 'src/users/users.service';
 import { JwtService } from '@nestjs/jwt';
 import { jwtConstants } from './constants/jwt.constants';
 import { RefreshToken } from 'src/schemas/refresh-token.schema';
 import { filter } from 'rxjs';
 
 export interface TokenPayload {
-  sub: string,
-  username: string,
-  displayName?: string,
+  sub: string;
+  username: string;
+  displayName?: string;
 }
 
 @Injectable()
 export class AuthService {
   constructor(
-    private readonly userService: UserService,
+    private readonly UsersService: UsersService,
     private readonly jwtService: JwtService,
-    @InjectModel(PasswordCredential.name) private passwordCredentialModel: mongoose.Model<PasswordCredential>,
-    @InjectModel(RefreshToken.name) private refreshTokenModel: mongoose.Model<RefreshToken>,
+    @InjectModel(PasswordCredential.name)
+    private passwordCredentialModel: mongoose.Model<PasswordCredential>,
+    @InjectModel(RefreshToken.name)
+    private refreshTokenModel: mongoose.Model<RefreshToken>,
   ) {}
 
   async validateUser(username: string, password: string) {
@@ -29,7 +31,10 @@ export class AuthService {
     if (!credential) {
       return false;
     }
-    const isPasswordValid = await bcrypt.compare(password, credential.hashedPassword);
+    const isPasswordValid = await bcrypt.compare(
+      password,
+      credential.hashedPassword,
+    );
     if (!isPasswordValid) {
       return false;
     }
@@ -41,12 +46,12 @@ export class AuthService {
     if (!isUserValid) {
       return null;
     }
-    const user = await this.userService.getUserByUsername(username);
+    const user = await this.UsersService.getUserByUsername(username);
     return {
       id: user._id,
       username: username,
       displayName: user.displayName,
-    }
+    };
   }
 
   async issueTokens(user) {
@@ -57,39 +62,54 @@ export class AuthService {
     };
 
     return {
-      accessToken: await this.jwtService.signAsync(payload, { secret: jwtConstants.accessTokenSecret, expiresIn: jwtConstants.accessTokenExpiration }),
-      refreshToken: await this.jwtService.signAsync(payload, { secret: jwtConstants.refreshTokenSecret, expiresIn: jwtConstants.refreshTokenExpiration }),
+      accessToken: await this.jwtService.signAsync(payload, {
+        secret: jwtConstants.accessTokenSecret,
+        expiresIn: jwtConstants.accessTokenExpiration,
+      }),
+      refreshToken: await this.jwtService.signAsync(payload, {
+        secret: jwtConstants.refreshTokenSecret,
+        expiresIn: jwtConstants.refreshTokenExpiration,
+      }),
     };
   }
 
-  async updateRefreshToken(userId: string | Types.ObjectId, refreshToken: string) {
+  async updateRefreshToken(
+    userId: string | Types.ObjectId,
+    refreshToken: string,
+  ) {
     const saltRounds = 10;
     const hashedRefreshToken = await bcrypt.hash(refreshToken, saltRounds);
     const userIdAsObjectId = new mongoose.Types.ObjectId(userId);
     await this.refreshTokenModel.findOneAndUpdate(
       { userId: userIdAsObjectId },
       { userId: userIdAsObjectId, hashedRefreshToken },
-      { upsert: true }
+      { upsert: true },
     );
   }
-  
+
   async revokeRefreshToken(userId: string | Types.ObjectId) {
     const userIdAsObjectId = new mongoose.Types.ObjectId(userId);
     await this.refreshTokenModel.findOneAndUpdate(
       { userId: userIdAsObjectId },
-      { hashedRefreshToken: null }
+      { hashedRefreshToken: null },
     );
   }
 
-  async verifyRefreshToken(userId: string | Types.ObjectId, refreshToken: string) {
-    const token = await this.refreshTokenModel.findOne({ userId: new mongoose.Types.ObjectId(userId) });
-    if (token && await bcrypt.compare(refreshToken, token.hashedRefreshToken)) {
+  async verifyRefreshToken(
+    userId: string | Types.ObjectId,
+    refreshToken: string,
+  ) {
+    const token = await this.refreshTokenModel.findOne({
+      userId: new mongoose.Types.ObjectId(userId),
+    });
+    if (
+      token &&
+      (await bcrypt.compare(refreshToken, token.hashedRefreshToken))
+    ) {
       return true;
     }
     return false;
   }
 
-  async refreshAccessToken(user: TokenPayload) {
-
-  }
+  async refreshAccessToken(user: TokenPayload) {}
 }
