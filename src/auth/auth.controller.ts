@@ -29,7 +29,7 @@ export class AuthController {
   private readonly logger = new Logger(AuthController.name);
 
   constructor(
-    private UsersService: UsersService,
+    private usersService: UsersService,
     private authService: AuthService,
     private fileSystemService: FileSystemService,
   ) {}
@@ -60,10 +60,10 @@ export class AuthController {
     @UploadedFile() file?: Express.Multer.File,
   ) {
     try {
-      if (await this.UsersService.getUserByUsername(dto.username)) {
+      if (await this.usersService.getUserByUsername(dto.username)) {
         throw new BadRequestException('Username already exists.');
       }
-      const newUser = await this.UsersService.createUser({
+      const newUser = await this.usersService.createUser({
         ...dto,
         avatar: file?.path,
       });

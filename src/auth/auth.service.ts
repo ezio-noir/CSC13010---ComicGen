@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import mongoose, { Types } from 'mongoose';
 import { PasswordCredential } from 'src/schemas/password-credential.schema';
@@ -7,7 +7,6 @@ import { UsersService } from 'src/users/users.service';
 import { JwtService } from '@nestjs/jwt';
 import { jwtConstants } from './constants/jwt.constants';
 import { RefreshToken } from 'src/schemas/refresh-token.schema';
-import { filter } from 'rxjs';
 
 export interface TokenPayload {
   sub: string;
@@ -18,7 +17,7 @@ export interface TokenPayload {
 @Injectable()
 export class AuthService {
   constructor(
-    private readonly UsersService: UsersService,
+    private readonly usersService: UsersService,
     private readonly jwtService: JwtService,
     @InjectModel(PasswordCredential.name)
     private passwordCredentialModel: mongoose.Model<PasswordCredential>,
@@ -46,7 +45,7 @@ export class AuthService {
     if (!isUserValid) {
       return null;
     }
-    const user = await this.UsersService.getUserByUsername(username);
+    const user = await this.usersService.getUserByUsername(username);
     return {
       id: user._id,
       username: username,
