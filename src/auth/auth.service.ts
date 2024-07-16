@@ -109,6 +109,4 @@ export class AuthService {
     }
     return false;
   }
-
-  async refreshAccessToken(user: TokenPayload) {}
 }

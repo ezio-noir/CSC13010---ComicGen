@@ -12,19 +12,15 @@ import {
   FollowingList,
   FollowingListSchema,
 } from 'src/schemas/following-list.schema';
+import { Followed, FollowedSchema } from 'src/schemas/followed.schema';
 
 @Module({
   imports: [
     MongooseModule.forFeature([
-      {
-        name: User.name,
-        schema: UserSchema,
-      },
-      {
-        name: PasswordCredential.name,
-        schema: PasswordCredentialSchema,
-      },
+      { name: User.name, schema: UserSchema },
+      { name: PasswordCredential.name, schema: PasswordCredentialSchema },
       { name: FollowingList.name, schema: FollowingListSchema },
+      { name: Followed.name, schema: FollowedSchema },
     ]),
     FileSystemModule,
   ],

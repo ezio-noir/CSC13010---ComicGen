@@ -19,7 +19,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { Multer, MulterError, diskStorage } from 'multer';
 import { extname } from 'path';
 import { FileSystemService } from 'src/file-system/file-system.service';
-import { EditUserDetailsDto } from './dto/edit-user-details.dto';
+import { EditUserDetailsDto } from './dto/request/edit-user-details.dto';
 import mongoose from 'mongoose';
 
 @Controller('users')

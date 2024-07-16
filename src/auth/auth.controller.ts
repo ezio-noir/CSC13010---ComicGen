@@ -13,7 +13,7 @@ import {
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
-import { RegisterDto } from './dto/register.dto';
+import { RegisterDto } from './dto/request/register.dto';
 import { UsersService } from 'src/users/users.service';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { MulterError, diskStorage } from 'multer';
@@ -23,6 +23,8 @@ import { LocalAuthGuard } from './guard/local-auth.guard';
 import { AuthService } from './auth.service';
 import { Response } from 'express';
 import { RefreshTokenGuard } from './guard/refresh-token-guard';
+import { UserAlreadyExistsError } from 'src/users/error/user-already-exists.error';
+import { UserPublic } from 'src/users/dto/response/user-public.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -60,29 +62,20 @@ export class AuthController {
     @UploadedFile() file?: Express.Multer.File,
   ) {
     try {
-      if (await this.usersService.getUserByUsername(dto.username)) {
-        throw new BadRequestException('Username already exists.');
-      }
       const newUser = await this.usersService.createUser({
         ...dto,
         avatar: file?.path,
       });
-      this.logger.log(`New user created: ${newUser._id}`);
+      this.logger.log(`User registered: ${newUser._id}.`);
       return {
         message: 'User created successfully.',
-        data: {
-          id: newUser._id,
-          username: newUser.username,
-          displayName: newUser.displayName,
-          avatar: newUser.avatar,
-        },
+        data: new UserPublic(newUser),
       };
     } catch (error) {
-      this.logger.error('Error creating user.', error.stack);
+      this.logger.error('Error registering user.');
       if (file) this.fileSystemService.removeFile(file.path);
-
-      if (error instanceof BadRequestException) {
-        throw error;
+      if (error instanceof UserAlreadyExistsError) {
+        throw new BadRequestException('Username already exists.');
       }
       throw new InternalServerErrorException('Error creating user.');
     }
@@ -91,13 +84,22 @@ export class AuthController {
   @UseGuards(LocalAuthGuard)
   @Post('login')
   async login(@Req() req, @Res({ passthrough: true }) res: Response) {
-    const tokens = await this.authService.issueTokens(req.user);
-    await this.authService.updateRefreshToken(req.user.id, tokens.refreshToken);
-    res.cookie('accessToken', tokens.accessToken, { httpOnly: false });
-    res.cookie('refreshToken', tokens.refreshToken, { httpOnly: true });
-    return {
-      message: 'Login successfully.',
-    };
+    try {
+      const tokens = await this.authService.issueTokens(req.user);
+      await this.authService.updateRefreshToken(
+        req.user.id,
+        tokens.refreshToken,
+      );
+      res.cookie('accessToken', tokens.accessToken, { httpOnly: false });
+      res.cookie('refreshToken', tokens.refreshToken, { httpOnly: true });
+      this.logger.log(`User logged in: ${req.user.id}`);
+      return {
+        message: 'Login successfully.',
+      };
+    } catch (err) {
+      this.logger.error('Error logging user in.');
+      throw new InternalServerErrorException('Error logging user in.');
+    }
   }
 
   @UseGuards(RefreshTokenGuard)
