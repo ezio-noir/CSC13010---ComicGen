@@ -1,4 +1,4 @@
-import { Expose, plainToInstance } from 'class-transformer';
+import { Expose } from 'class-transformer';
 import {
   IsDate,
   IsMongoId,
@@ -34,6 +34,10 @@ export class UserPublic {
   createdAt: Date;
 
   constructor(user) {
-    return plainToInstance(UserPublic, user, { excludeExtraneousValues: true });
+    this.id = user._id;
+    this.username = user.username;
+    this.displayName = user.displayName;
+    this.avatar = user.avatar;
+    this.createdAt = user.createdAt;
   }
 }

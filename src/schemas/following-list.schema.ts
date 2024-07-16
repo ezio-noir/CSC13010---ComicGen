@@ -1,13 +1,14 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Types } from 'mongoose';
+import { User } from './user.schema';
 
 @Schema()
 export class FollowingList {
-  @Prop({ required: true, ref: 'User' })
-  userId: Types.ObjectId;
+  @Prop({ type: Types.ObjectId, required: true, ref: 'User' })
+  user: User;
 
   @Prop({ type: [{ type: Types.ObjectId, ref: 'User' }] })
-  followingUsers: Types.ObjectId[];
+  followingUsers;
 }
 
 export const FollowingListSchema = SchemaFactory.createForClass(FollowingList);

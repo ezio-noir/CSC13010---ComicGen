@@ -1,6 +1,6 @@
-export class FollowingListNotFoundError extends Error {
+export class FollowingListNotExistError extends Error {
   constructor() {
     super();
-    this.name = 'FollowingListNotFoundError';
+    this.name = 'FollowingListNotExistError';
   }
 }

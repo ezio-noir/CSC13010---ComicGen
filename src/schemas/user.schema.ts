@@ -1,6 +1,9 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Types } from 'mongoose';
 import { PasswordCredential } from './password-credential.schema';
+import { FollowingList } from './following-list.schema';
+import { Followed } from './followed.schema';
+import { Transform } from 'class-transformer';
 const MongooseDelete = require('mongoose-delete'); // Do not change to `import` statement
 
 @Schema({
@@ -16,17 +19,31 @@ export class User {
   @Prop()
   displayName?: string;
 
-  @Prop({ type: Types.ObjectId, ref: 'PasswordCredential' })
+  @Transform(({ value }) => value?._id)
+  @Prop({
+    type: Types.ObjectId,
+    ref: 'PasswordCredential',
+    get: (value) => value._id,
+  })
   credential: PasswordCredential;
 
   @Prop()
   avatar?: string;
 
-  @Prop({ ref: 'FollowingList' })
-  followingList: Types.ObjectId;
+  @Transform(({ value }) => value?._id)
+  @Prop({
+    type: Types.ObjectId,
+    ref: 'FollowingList',
+    get: (value) => value._id,
+  })
+  followingList: FollowingList;
 
-  @Prop({ ref: 'Followed' })
-  followed: Types.ObjectId;
+  @Prop({
+    type: Types.ObjectId,
+    ref: 'Followed',
+    get: (value) => value._id,
+  })
+  followed: Followed;
 
   @Prop({ default: Date.now() })
   createdAt: Date;

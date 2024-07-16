@@ -33,6 +33,8 @@ export class UsersService {
   }
 
   async createUser(createUserDto: CreateUserDto) {
+    const session = await this.userModel.db.startSession();
+    session.startTransaction();
     try {
       if (
         await this.userModel.exists({
@@ -42,6 +44,13 @@ export class UsersService {
         throw new UserAlreadyExistsError();
       }
 
+      const newUser = new this.userModel({
+        username: createUserDto.username,
+        displayName: createUserDto.displayName,
+        avatar: createUserDto.avatar,
+      });
+      // const savedNewUser = await newUser.save({ session });
+
       const hashedPassword = await bcrypt.hash(
         createUserDto.password,
         this.saltRounds,
@@ -50,34 +59,34 @@ export class UsersService {
         username: createUserDto.username,
         hashedPassword: hashedPassword,
       });
-      const passwordCredential = await newPasswordCredential.save();
-
-      const newUser = new this.userModel({
-        username: createUserDto.username,
-        displayName: createUserDto.displayName,
-        credential: passwordCredential._id,
-        avatar: createUserDto.avatar,
-      });
-      const savedNewUser = await newUser.save();
+      await newPasswordCredential.save({ session });
+      newUser.credential = newPasswordCredential;
 
       const newFollowingList = new this.followingListModel({
-        userId: savedNewUser._id,
+        user: newUser,
         followingUsers: [],
       });
-      const savedNewFollowingList = await newFollowingList.save();
-      savedNewUser.followingList = savedNewFollowingList._id;
+      await newFollowingList.save({ session });
+      newUser.followingList = newFollowingList;
 
       const newFollowed = new this.followedModel({
-        userId: savedNewUser._id,
+        user: newUser,
         followerCount: 0,
       });
-      const savedNewFollowed = await newFollowed.save();
-      savedNewUser.followed = savedNewFollowed._id;
+      await newFollowed.save({ session });
+      newUser.followed = newFollowed;
 
-      await savedNewUser.save();
-      this.logger.log(`User created: ${savedNewUser._id}.`);
-      return savedNewUser.toJSON();
+      await newUser.save({ session });
+      await session.commitTransaction();
+      session.endSession();
+
+      this.logger.log(`User created: ${newUser._id}.`);
+      return newUser.toJSON({ getters: true });
     } catch (err) {
+      console.log(err);
+      await session.abortTransaction();
+      session.endSession();
+
       this.logger.error('Failed to create user.', err.trace);
       throw err;
     }

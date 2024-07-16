@@ -72,6 +72,7 @@ export class AuthController {
         data: new UserPublic(newUser),
       };
     } catch (error) {
+      console.log(error);
       this.logger.error('Error registering user.');
       if (file) this.fileSystemService.removeFile(file.path);
       if (error instanceof UserAlreadyExistsError) {
