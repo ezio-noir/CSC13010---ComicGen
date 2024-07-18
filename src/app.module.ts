@@ -8,6 +8,8 @@ import { SharedModule } from './shared/shared.module';
 import { FileSystemModule } from './file-system/file-system.module';
 import { FollowsModule } from './follows/follows.module';
 import { ApiLoggingMiddleware } from './middlewares/api-logging.middleware';
+import { ConfigModule } from '@nestjs/config';
+import configuration from './config/configuration';
 
 @Module({
   imports: [
@@ -17,6 +19,10 @@ import { ApiLoggingMiddleware } from './middlewares/api-logging.middleware';
     SharedModule,
     FileSystemModule,
     FollowsModule,
+    ConfigModule.forRoot({
+      isGlobal: true,
+      load: [configuration],
+    }),
   ],
   controllers: [AppController],
   providers: [AppService],

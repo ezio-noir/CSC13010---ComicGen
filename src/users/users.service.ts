@@ -9,6 +9,8 @@ import { UpdateUserDetailsDto } from './dto/request/update-user-details.dto';
 import { FollowingList } from 'src/schemas/following-list.schema';
 import { Followed } from 'src/schemas/followed.schema';
 import { UserAlreadyExistsError } from './error/user-already-exists.error';
+import { UserPublicDetailsDto } from './dto/response/user-public-details.dto';
+import { FollowsService } from 'src/follows/follows.service';
 
 @Injectable()
 export class UsersService {
@@ -22,18 +24,36 @@ export class UsersService {
     @InjectModel(FollowingList.name)
     private followingListModel: mongoose.Model<FollowingList>,
     @InjectModel(Followed.name) private followedModel: mongoose.Model<Followed>,
+    private followsService: FollowsService,
   ) {}
 
-  getUserById(userId: string | mongoose.Types.ObjectId) {
-    return this.userModel.findById(new mongoose.Types.ObjectId(userId));
+  async getUserById(userId: mongoose.Types.ObjectId) {
+    const user = await this.userModel
+      .findById(new mongoose.Types.ObjectId(userId))
+      .populate<{ followed: Followed }>('followed');
+
+    console.log(user);
+    // const followed = user.populate('followed');
+    return new UserPublicDetailsDto({
+      id: user.id,
+      username: user.username,
+      displayName: user.displayName,
+      createdAt: user.createdAt,
+      avatar: user.avatar,
+      followerCount: user.followed.followerCount,
+    });
   }
 
   getUserByUsername(username: string) {
     return this.userModel.findOne({ username });
   }
 
-  async createUser(createUserDto: CreateUserDto) {
-    const session = await this.userModel.db.startSession();
+  async createUser(
+    createUserDto: CreateUserDto,
+    options?: mongoose.SaveOptions,
+  ) {
+    const providedSession = options?.session;
+    const session = providedSession || (await this.userModel.db.startSession());
     session.startTransaction();
     try {
       if (
@@ -44,12 +64,12 @@ export class UsersService {
         throw new UserAlreadyExistsError();
       }
 
-      const newUser = new this.userModel({
+      const user = new this.userModel({
         username: createUserDto.username,
         displayName: createUserDto.displayName,
         avatar: createUserDto.avatar,
       });
-      // const savedNewUser = await newUser.save({ session });
+      // const savedNewUser = await user.save({ session });
 
       const hashedPassword = await bcrypt.hash(
         createUserDto.password,
@@ -60,35 +80,38 @@ export class UsersService {
         hashedPassword: hashedPassword,
       });
       await newPasswordCredential.save({ session });
-      newUser.credential = newPasswordCredential;
+      user.credential = newPasswordCredential._id;
 
-      const newFollowingList = new this.followingListModel({
-        user: newUser,
-        followingUsers: [],
+      // const newFollowingList = new this.followingListModel({
+      //   followingUsers: [],
+      // });
+      // await newFollowingList.save({ session });
+      const newFollowingList = await this.followsService.createFollowingList({
+        session,
       });
-      await newFollowingList.save({ session });
-      newUser.followingList = newFollowingList;
+      user.followingList = newFollowingList._id;
 
-      const newFollowed = new this.followedModel({
-        user: newUser,
-        followerCount: 0,
+      // const newFollowed = new this.followedModel({
+      //   followerCount: 0,
+      // });
+      // await newFollowed.save({ session });
+      const newFollowed = await this.followsService.createFollowed({
+        session,
       });
-      await newFollowed.save({ session });
-      newUser.followed = newFollowed;
+      user.followed = newFollowed._id;
 
-      await newUser.save({ session });
+      await user.save({ session });
       await session.commitTransaction();
-      session.endSession();
 
-      this.logger.log(`User created: ${newUser._id}.`);
-      return newUser.toJSON({ getters: true });
+      this.logger.log(`User created: ${user._id}.`);
+      return { id: user._id.toHexString() };
     } catch (err) {
-      console.log(err);
       await session.abortTransaction();
-      session.endSession();
 
       this.logger.error('Failed to create user.', err.trace);
       throw err;
+    } finally {
+      if (!providedSession) session.endSession();
     }
   }
 

@@ -18,6 +18,7 @@ import { Followed, FollowedSchema } from 'src/schemas/followed.schema';
     ]),
   ],
   providers: [FollowsService],
+  exports: [FollowsService],
   controllers: [FollowsController],
 })
 export class FollowsModule {}

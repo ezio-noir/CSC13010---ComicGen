@@ -24,7 +24,6 @@ import { AuthService } from './auth.service';
 import { Response } from 'express';
 import { RefreshTokenGuard } from './guard/refresh-token-guard';
 import { UserAlreadyExistsError } from 'src/users/error/user-already-exists.error';
-import { UserPublic } from 'src/users/dto/response/user-public.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -62,14 +61,14 @@ export class AuthController {
     @UploadedFile() file?: Express.Multer.File,
   ) {
     try {
-      const newUser = await this.usersService.createUser({
+      const newUserId = await this.usersService.createUser({
         ...dto,
         avatar: file?.path,
       });
-      this.logger.log(`User registered: ${newUser._id}.`);
+      this.logger.log(`User registered: ${newUserId.id}.`);
       return {
         message: 'User created successfully.',
-        data: new UserPublic(newUser),
+        data: newUserId,
       };
     } catch (error) {
       console.log(error);

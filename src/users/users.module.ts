@@ -13,6 +13,7 @@ import {
   FollowingListSchema,
 } from 'src/schemas/following-list.schema';
 import { Followed, FollowedSchema } from 'src/schemas/followed.schema';
+import { FollowsModule } from 'src/follows/follows.module';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { Followed, FollowedSchema } from 'src/schemas/followed.schema';
       { name: Followed.name, schema: FollowedSchema },
     ]),
     FileSystemModule,
+    FollowsModule,
   ],
   providers: [UsersService],
   exports: [UsersService],

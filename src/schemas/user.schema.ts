@@ -3,13 +3,15 @@ import { Types } from 'mongoose';
 import { PasswordCredential } from './password-credential.schema';
 import { FollowingList } from './following-list.schema';
 import { Followed } from './followed.schema';
-import { Transform } from 'class-transformer';
 const MongooseDelete = require('mongoose-delete'); // Do not change to `import` statement
 
 @Schema({
   timestamps: true,
   toJSON: {
     getters: true,
+    transform: (doc, ret) => {
+      return ret;
+    },
   },
 })
 export class User {
@@ -19,37 +21,32 @@ export class User {
   @Prop()
   displayName?: string;
 
-  @Transform(({ value }) => value?._id)
   @Prop({
     type: Types.ObjectId,
-    ref: 'PasswordCredential',
-    get: (value) => value._id,
+    ref: PasswordCredential.name,
   })
-  credential: PasswordCredential;
+  credential: Types.ObjectId;
 
   @Prop()
   avatar?: string;
 
-  @Transform(({ value }) => value?._id)
   @Prop({
     type: Types.ObjectId,
-    ref: 'FollowingList',
-    get: (value) => value._id,
+    ref: FollowingList.name,
   })
-  followingList: FollowingList;
+  followingList: Types.ObjectId;
 
   @Prop({
     type: Types.ObjectId,
-    ref: 'Followed',
-    get: (value) => value._id,
+    ref: Followed.name,
   })
-  followed: Followed;
+  followed: Types.ObjectId;
 
   @Prop({ default: Date.now() })
   createdAt: Date;
 }
 
-export const UserSchema = SchemaFactory.createForClass(User).plugin(
-  MongooseDelete,
-  { deletedAt: true },
-);
+const UserSchema = SchemaFactory.createForClass(User);
+UserSchema.plugin(MongooseDelete, { deletedAt: true });
+
+export { UserSchema };

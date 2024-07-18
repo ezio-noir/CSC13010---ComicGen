@@ -39,11 +39,7 @@ export class UsersController {
       throw new NotFoundException('User does not exist.');
     }
     return {
-      data: {
-        id: user._id,
-        avatar: user.avatar,
-        displayName: user.displayName,
-      },
+      data: user,
     };
   }
 
