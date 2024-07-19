@@ -2,6 +2,7 @@ import {
   BadRequestException,
   Body,
   Controller,
+  Get,
   HttpCode,
   HttpStatus,
   InternalServerErrorException,
@@ -22,8 +23,12 @@ import { FileSystemService } from 'src/file-system/file-system.service';
 import { LocalAuthGuard } from './guard/local-auth.guard';
 import { AuthService } from './auth.service';
 import { Response } from 'express';
-import { RefreshTokenGuard } from './guard/refresh-token-guard';
+import { RefreshTokenGuard } from './guard/refresh-token.guard';
 import { UserAlreadyExistsError } from 'src/users/error/user-already-exists.error';
+import { AccessTokenGuard } from './guard/access-token.guard';
+import { Roles } from 'src/decorators/roles.decorator';
+import { RoleGuard } from './guard/roles.guard';
+import { Role } from 'src/enum/roles.enum';
 
 @Controller('auth')
 export class AuthController {
@@ -111,6 +116,15 @@ export class AuthController {
     res.cookie('refreshToken', tokens.refreshToken, { httpOnly: true });
     return {
       message: 'Tokens refreshed successfully.',
+    };
+  }
+
+  @Get('role-test')
+  @Roles(Role.ADMIN)
+  @UseGuards(AccessTokenGuard, RoleGuard)
+  async roleAuthGuardTest() {
+    return {
+      message: 'Success',
     };
   }
 }

@@ -16,11 +16,13 @@ import {
 import { UsersService } from './users.service';
 import { AccessTokenGuard } from 'src/auth/guard/access-token.guard';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { Multer, MulterError, diskStorage } from 'multer';
+import { MulterError, diskStorage } from 'multer';
 import { extname } from 'path';
 import { FileSystemService } from 'src/file-system/file-system.service';
 import { EditUserDetailsDto } from './dto/request/edit-user-details.dto';
 import mongoose from 'mongoose';
+import { HexStrToMongoOIDTransformPipe } from 'src/shared/pipe/hex-str-to-mongo-oid-transform';
+import { UserNotFoundError } from 'src/shared/error/user-not-found.error';
 
 @Controller('users')
 export class UsersController {
@@ -33,14 +35,20 @@ export class UsersController {
 
   @UseGuards(AccessTokenGuard)
   @Get(':userId')
-  async getUserById(@Param('userId') userId) {
-    const user = await this.usersService.getUserById(userId);
-    if (!user) {
-      throw new NotFoundException('User does not exist.');
+  async getUserById(@Param('userId', HexStrToMongoOIDTransformPipe) userId) {
+    try {
+      const user = await this.usersService.getUserById(userId);
+      if (!user) {
+        throw new NotFoundException('User does not exist.');
+      }
+      return {
+        data: user,
+      };
+    } catch (err) {
+      this.logger.error(err.message);
+      if (err instanceof UserNotFoundError) throw new NotFoundException();
+      throw err;
     }
-    return {
-      data: user,
-    };
   }
 
   @UseGuards(AccessTokenGuard)

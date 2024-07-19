@@ -7,6 +7,7 @@ import { UsersService } from 'src/users/users.service';
 import { JwtService } from '@nestjs/jwt';
 import { jwtConstants } from './constants/jwt.constants';
 import { RefreshToken } from 'src/schemas/refresh-token.schema';
+import { Role } from 'src/enum/roles.enum';
 
 export interface TokenPayload {
   sub: string;
@@ -16,6 +17,11 @@ export interface TokenPayload {
 
 @Injectable()
 export class AuthService {
+  private readonly rolePriorities: Record<Role, number> = {
+    [Role.USER]: 0x010,
+    [Role.ADMIN]: 0x100,
+  };
+
   constructor(
     private readonly usersService: UsersService,
     private readonly jwtService: JwtService,
@@ -24,6 +30,19 @@ export class AuthService {
     @InjectModel(RefreshToken.name)
     private refreshTokenModel: mongoose.Model<RefreshToken>,
   ) {}
+
+  private checkPriority(roles: string[], requiredRoles: string[]) {
+    const rolesPriority = roles.map((role) => this.rolePriorities[role]);
+    const requiredRolesPriority = requiredRoles.map(
+      (role) => this.rolePriorities[role],
+    );
+    return Math.max(...rolesPriority) >= Math.min(...requiredRolesPriority);
+  }
+
+  async checkUserPrivilege(userId: Types.ObjectId, requiredRoles: string[]) {
+    const userRoles = await this.usersService.getUserRoles(userId);
+    return this.checkPriority(userRoles, requiredRoles);
+  }
 
   async validateUser(username: string, password: string) {
     const credential = await this.passwordCredentialModel.findOne({ username });

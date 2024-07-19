@@ -1,0 +1,81 @@
+[{
+  "_id": {
+    "$oid": "669a2e745b62e5e0be52f3c5"
+  },
+  "username": "voldy123",
+  "displayName": "Snake Boy",
+  "createdAt": {
+    "$date": "2024-07-19T09:14:18.729Z"
+  },
+  "roles": [
+    "USER",
+    "ADMIN"
+  ],
+  "deleted": false,
+  "credential": {
+    "$oid": "669a2e745b62e5e0be52f3c6"
+  },
+  "followingList": {
+    "$oid": "669a2e745b62e5e0be52f3c8"
+  },
+  "followed": {
+    "$oid": "669a2e745b62e5e0be52f3ca"
+  },
+  "updatedAt": {
+    "$date": "2024-07-19T09:14:18.729Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "669a2e775b62e5e0be52f3ce"
+  },
+  "username": "harryp",
+  "displayName": "Scarface",
+  "createdAt": {
+    "$date": "2024-07-19T09:14:18.729Z"
+  },
+  "roles": [
+    "USER"
+  ],
+  "deleted": false,
+  "credential": {
+    "$oid": "669a2e775b62e5e0be52f3cf"
+  },
+  "followingList": {
+    "$oid": "669a2e785b62e5e0be52f3d1"
+  },
+  "followed": {
+    "$oid": "669a2e785b62e5e0be52f3d3"
+  },
+  "updatedAt": {
+    "$date": "2024-07-19T09:14:18.729Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "669a2e7a5b62e5e0be52f3d7"
+  },
+  "username": "tarnished",
+  "createdAt": {
+    "$date": "2024-07-19T09:14:18.729Z"
+  },
+  "roles": [
+    "USER"
+  ],
+  "deleted": false,
+  "credential": {
+    "$oid": "669a2e7a5b62e5e0be52f3d8"
+  },
+  "followingList": {
+    "$oid": "669a2e7a5b62e5e0be52f3da"
+  },
+  "followed": {
+    "$oid": "669a2e7a5b62e5e0be52f3dc"
+  },
+  "updatedAt": {
+    "$date": "2024-07-19T09:14:18.729Z"
+  },
+  "__v": 0
+}]

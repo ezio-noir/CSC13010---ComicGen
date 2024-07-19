@@ -3,6 +3,7 @@ import { Types } from 'mongoose';
 import { PasswordCredential } from './password-credential.schema';
 import { FollowingList } from './following-list.schema';
 import { Followed } from './followed.schema';
+import { Role } from 'src/enum/roles.enum';
 const MongooseDelete = require('mongoose-delete'); // Do not change to `import` statement
 
 @Schema({
@@ -44,6 +45,9 @@ export class User {
 
   @Prop({ default: Date.now() })
   createdAt: Date;
+
+  @Prop({ type: [String], enum: Object.values(Role), default: [Role.USER] })
+  roles: Role[];
 }
 
 const UserSchema = SchemaFactory.createForClass(User);

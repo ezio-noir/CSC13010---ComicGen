@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import mongoose from 'mongoose';
+import mongoose, { Types } from 'mongoose';
 import { User } from 'src/schemas/user.schema';
 import * as bcrypt from 'bcrypt';
 import { PasswordCredential } from 'src/schemas/password-credential.schema';
@@ -11,6 +11,7 @@ import { Followed } from 'src/schemas/followed.schema';
 import { UserAlreadyExistsError } from './error/user-already-exists.error';
 import { UserPublicDetailsDto } from './dto/response/user-public-details.dto';
 import { FollowsService } from 'src/follows/follows.service';
+import { UserNotFoundError } from 'src/shared/error/user-not-found.error';
 
 @Injectable()
 export class UsersService {
@@ -27,13 +28,17 @@ export class UsersService {
     private followsService: FollowsService,
   ) {}
 
+  async doesUserExist(userId: Types.ObjectId) {
+    return await this.userModel.exists({ _id: userId });
+  }
+
   async getUserById(userId: mongoose.Types.ObjectId) {
     const user = await this.userModel
       .findById(new mongoose.Types.ObjectId(userId))
       .populate<{ followed: Followed }>('followed');
 
-    console.log(user);
-    // const followed = user.populate('followed');
+    if (!user) throw new UserNotFoundError();
+
     return new UserPublicDetailsDto({
       id: user.id,
       username: user.username,
@@ -46,6 +51,11 @@ export class UsersService {
 
   getUserByUsername(username: string) {
     return this.userModel.findOne({ username });
+  }
+
+  async getUserRoles(userId: Types.ObjectId) {
+    const user = await this.userModel.findById(userId);
+    return user?.roles || [];
   }
 
   async createUser(

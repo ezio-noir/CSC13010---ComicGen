@@ -1,0 +1,20 @@
+[{
+  "_id": {
+    "$oid": "669a2ef27a527dd3987e8e9f"
+  },
+  "userId": {
+    "$oid": "669a2e745b62e5e0be52f3c5"
+  },
+  "__v": 0,
+  "hashedRefreshToken": "$2b$10$oOP2Jl89Zzfhkd1gFF5aduy96fGLXv7VL6s/VS2sCQaOF9FndQ/B2"
+},
+{
+  "_id": {
+    "$oid": "669a2fb97a527dd3987f2366"
+  },
+  "userId": {
+    "$oid": "669a2e7a5b62e5e0be52f3d7"
+  },
+  "__v": 0,
+  "hashedRefreshToken": "$2b$10$q0gTqIQbHB/EgRNl/TdH2eVu3gw0oL1r535RtDh3Z556T5/dLDXQS"
+}]

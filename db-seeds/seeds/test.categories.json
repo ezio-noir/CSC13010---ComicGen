@@ -1,0 +1,48 @@
+[{
+  "_id": {
+    "$oid": "669a2ef75b62e5e0be52f3e3"
+  },
+  "name": "Horrow",
+  "comicCount": 2,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "669a2f015b62e5e0be52f3e6"
+  },
+  "name": "Drama",
+  "comicCount": 2,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "669a2f065b62e5e0be52f3e9"
+  },
+  "name": "Fantasy",
+  "comicCount": 0,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "669a2f0c5b62e5e0be52f3ec"
+  },
+  "name": "Sci-fi",
+  "comicCount": 1,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "669a2f255b62e5e0be52f3ef"
+  },
+  "name": "Slice of life",
+  "comicCount": 1,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "669a2f325b62e5e0be52f3f2"
+  },
+  "name": "Adventure",
+  "comicCount": 1,
+  "__v": 0
+}]

@@ -1,0 +1,21 @@
+[{
+  "_id": {
+    "$oid": "669a2e745b62e5e0be52f3ca"
+  },
+  "followerCount": 1,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "669a2e785b62e5e0be52f3d3"
+  },
+  "followerCount": 1,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "669a2e7a5b62e5e0be52f3dc"
+  },
+  "followerCount": 1,
+  "__v": 0
+}]

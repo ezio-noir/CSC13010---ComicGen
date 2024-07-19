@@ -1,0 +1,32 @@
+[{
+  "_id": {
+    "$oid": "669a2e745b62e5e0be52f3c8"
+  },
+  "followingUsers": [
+    {
+      "$oid": "669a2e775b62e5e0be52f3ce"
+    },
+    {
+      "$oid": "669a2e7a5b62e5e0be52f3d7"
+    }
+  ],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "669a2e785b62e5e0be52f3d1"
+  },
+  "followingUsers": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "669a2e7a5b62e5e0be52f3da"
+  },
+  "followingUsers": [
+    {
+      "$oid": "669a2e745b62e5e0be52f3c5"
+    }
+  ],
+  "__v": 0
+}]

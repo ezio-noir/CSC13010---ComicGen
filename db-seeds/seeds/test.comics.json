@@ -1,0 +1,100 @@
+[{
+  "_id": {
+    "$oid": "669a320fa5e43885e0c891b3"
+  },
+  "title": "Tales of Miquella",
+  "author": {
+    "$oid": "669a2e7a5b62e5e0be52f3d7"
+  },
+  "status": "DRAFT",
+  "categories": [],
+  "deleted": false,
+  "createdAt": {
+    "$date": "2024-07-19T09:29:51.022Z"
+  },
+  "updatedAt": {
+    "$date": "2024-07-19T09:29:51.022Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "669a323ea5e43885e0c891b7"
+  },
+  "title": "Doraemon",
+  "author": {
+    "$oid": "669a2e7a5b62e5e0be52f3d7"
+  },
+  "status": "DRAFT",
+  "categories": [
+    {
+      "$oid": "669a2ef75b62e5e0be52f3e3"
+    },
+    {
+      "$oid": "669a2f015b62e5e0be52f3e6"
+    }
+  ],
+  "deleted": false,
+  "createdAt": {
+    "$date": "2024-07-19T09:30:38.664Z"
+  },
+  "updatedAt": {
+    "$date": "2024-07-19T09:30:38.664Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "669a3333094daa60ceb3abda"
+  },
+  "title": "The ring",
+  "author": {
+    "$oid": "669a2e7a5b62e5e0be52f3d7"
+  },
+  "status": "DRAFT",
+  "categories": [
+    {
+      "$oid": "669a2ef75b62e5e0be52f3e3"
+    },
+    {
+      "$oid": "669a2f015b62e5e0be52f3e6"
+    }
+  ],
+  "deleted": false,
+  "createdAt": {
+    "$date": "2024-07-19T09:34:43.535Z"
+  },
+  "updatedAt": {
+    "$date": "2024-07-19T09:34:43.535Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "669a3451ad6769e842ae30d1"
+  },
+  "title": "Hebi",
+  "author": {
+    "$oid": "669a2e745b62e5e0be52f3c5"
+  },
+  "status": "DRAFT",
+  "categories": [
+    {
+      "$oid": "669a2f255b62e5e0be52f3ef"
+    },
+    {
+      "$oid": "669a2f0c5b62e5e0be52f3ec"
+    },
+    {
+      "$oid": "669a2f325b62e5e0be52f3f2"
+    }
+  ],
+  "deleted": false,
+  "createdAt": {
+    "$date": "2024-07-19T09:39:29.061Z"
+  },
+  "updatedAt": {
+    "$date": "2024-07-19T09:39:29.061Z"
+  },
+  "__v": 0
+}]

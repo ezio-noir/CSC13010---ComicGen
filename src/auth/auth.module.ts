@@ -1,10 +1,10 @@
-import { Module } from '@nestjs/common';
+import { Global, Module } from '@nestjs/common';
 import { AuthController } from './auth.controller';
 import { UsersModule } from 'src/users/users.module';
 import { SharedModule } from 'src/shared/shared.module';
 import { FileSystemModule } from 'src/file-system/file-system.module';
 import { AuthService } from './auth.service';
-import { JwtModule } from '@nestjs/jwt';
+import { JwtModule, JwtService } from '@nestjs/jwt';
 import { LocalStrategy } from './strategy/local.strategy';
 import { RefreshTokenStrategy } from './strategy/refresh-token.strategy';
 import { AccessTokenStrategy } from './strategy/access-token.strategy';
@@ -17,7 +17,10 @@ import {
   PasswordCredential,
   PasswordCredentialSchema,
 } from 'src/schemas/password-credential.schema';
+import { RoleGuard } from './guard/roles.guard';
+import { UsersService } from 'src/users/users.service';
 
+@Global()
 @Module({
   imports: [
     UsersModule,
@@ -41,6 +44,8 @@ import {
     LocalStrategy,
     AccessTokenStrategy,
     RefreshTokenStrategy,
+    RoleGuard,
   ],
+  exports: [AuthService],
 })
 export class AuthModule {}

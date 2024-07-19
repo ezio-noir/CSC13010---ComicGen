@@ -9,7 +9,10 @@ import { FileSystemModule } from './file-system/file-system.module';
 import { FollowsModule } from './follows/follows.module';
 import { ApiLoggingMiddleware } from './middlewares/api-logging.middleware';
 import { ConfigModule } from '@nestjs/config';
+import { ComicsModule } from './comics/comics.module';
+import { CategoriesModule } from './categories/categories.module';
 import configuration from './config/configuration';
+import { JwtModule } from '@nestjs/jwt';
 
 @Module({
   imports: [
@@ -23,6 +26,9 @@ import configuration from './config/configuration';
       isGlobal: true,
       load: [configuration],
     }),
+    ComicsModule,
+    CategoriesModule,
+    JwtModule.register({ global: true }),
   ],
   controllers: [AppController],
   providers: [AppService],
