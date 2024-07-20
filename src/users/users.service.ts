@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import mongoose, { Types } from 'mongoose';
+import mongoose, { SaveOptions, Types } from 'mongoose';
 import { User } from 'src/schemas/user.schema';
 import * as bcrypt from 'bcrypt';
 import { PasswordCredential } from 'src/schemas/password-credential.schema';
@@ -12,6 +12,7 @@ import { UserAlreadyExistsError } from './error/user-already-exists.error';
 import { UserPublicDetailsDto } from './dto/response/user-public-details.dto';
 import { FollowsService } from 'src/follows/follows.service';
 import { UserNotFoundError } from 'src/shared/error/user-not-found.error';
+import { UpdateUserError } from './error/update-user.error';
 
 @Injectable()
 export class UsersService {
@@ -126,12 +127,32 @@ export class UsersService {
   }
 
   async updateUser(
-    userId: mongoose.Types.ObjectId,
+    userId: Types.ObjectId,
     updateUserDto: UpdateUserDetailsDto,
+    options?: SaveOptions,
   ) {
-    console.log(updateUserDto);
-    return await this.userModel.findByIdAndUpdate(userId, {
-      ...updateUserDto,
-    });
+    const providedSession = options?.session;
+    const session = providedSession
+      ? providedSession
+      : await this.userModel.db.startSession();
+
+    try {
+      const updatedUser = await session.withTransaction(async () => {
+        const updatedUser = await this.userModel.findByIdAndUpdate(
+          userId,
+          {
+            ...updateUserDto,
+          },
+          { session, new: true },
+        );
+        await session.commitTransaction();
+        return updatedUser;
+      });
+      this.logger.log(`User details updated: ${updatedUser.id}.`);
+      return updatedUser.toJSON();
+    } catch (error) {
+      this.logger.error(error.message);
+      throw new UpdateUserError();
+    }
   }
 }

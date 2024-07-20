@@ -20,9 +20,10 @@ import { MulterError, diskStorage } from 'multer';
 import { extname } from 'path';
 import { FileSystemService } from 'src/file-system/file-system.service';
 import { EditUserDetailsDto } from './dto/request/edit-user-details.dto';
-import mongoose from 'mongoose';
+import mongoose, { Types } from 'mongoose';
 import { HexStrToMongoOIDTransformPipe } from 'src/shared/pipe/hex-str-to-mongo-oid-transform';
 import { UserNotFoundError } from 'src/shared/error/user-not-found.error';
+import { IdentityNotMatch } from 'src/shared/error/identity-not-match.error';
 
 @Controller('users')
 export class UsersController {
@@ -74,27 +75,22 @@ export class UsersController {
   )
   async editUserDetails(
     @Req() req,
-    @Param('userId') userId,
+    @Param('userId', HexStrToMongoOIDTransformPipe) userId,
     @Body() dto: EditUserDetailsDto,
     @UploadedFile() file?: Express.Multer.File,
   ) {
     try {
-      const extractedUserId = new mongoose.Types.ObjectId(req.user.id);
-      const userIdAsObjectId = new mongoose.Types.ObjectId(userId);
-      if (!extractedUserId.equals(userIdAsObjectId)) {
-        throw new BadRequestException(
-          "Attempting to modify another user's details.",
-        );
+      const extractedUserId = Types.ObjectId.createFromHexString(req.user.id);
+      if (!extractedUserId.equals(userId)) {
+        throw new IdentityNotMatch();
       }
-      const updatedUser = await this.usersService.updateUser(
-        new mongoose.Types.ObjectId(userIdAsObjectId),
-        {
-          ...dto,
-          avatar: file?.path,
-        },
-      );
+      const updatedUser = await this.usersService.updateUser(userId, {
+        ...dto,
+        avatar: file?.path,
+      });
       return {
         message: 'User details updated successfully.',
+        data: updatedUser,
       };
     } catch (error) {
       this.logger.error('Error creating user.', error.stack);
