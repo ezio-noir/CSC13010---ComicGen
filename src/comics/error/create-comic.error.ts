@@ -1,6 +1,6 @@
 export class CreateComicError extends Error {
-  constructor() {
-    super();
+  constructor(message?: string) {
+    super(message);
     this.name = 'CreateComicError';
   }
 }

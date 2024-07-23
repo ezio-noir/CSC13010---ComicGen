@@ -17,7 +17,7 @@ import {
 import { RegisterDto } from './dto/request/register.dto';
 import { UsersService } from 'src/users/users.service';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { MulterError, diskStorage } from 'multer';
+import { MulterError, diskStorage, memoryStorage } from 'multer';
 import { extname } from 'path';
 import { FileSystemService } from 'src/file-system/file-system.service';
 import { LocalAuthGuard } from './guard/local-auth.guard';
@@ -29,6 +29,7 @@ import { AccessTokenGuard } from './guard/access-token.guard';
 import { Roles } from 'src/decorators/roles.decorator';
 import { RoleGuard } from './guard/roles.guard';
 import { Role } from 'src/enum/roles.enum';
+import { FileUploadService } from 'src/core/file-upload/file-upload.service';
 
 @Controller('auth')
 export class AuthController {
@@ -38,6 +39,7 @@ export class AuthController {
     private usersService: UsersService,
     private authService: AuthService,
     private fileSystemService: FileSystemService,
+    private fileUploadService: FileUploadService,
   ) {}
 
   @Post('register')
@@ -126,5 +128,23 @@ export class AuthController {
     return {
       message: 'Success',
     };
+  }
+
+  @Post('file-upload')
+  @UseInterceptors(
+    FileInterceptor('file', {
+      storage: memoryStorage(),
+    }),
+  )
+  async testFileUpload(@UploadedFile() file?: Express.Multer.File) {
+    try {
+      const result = await this.fileUploadService.uploadFileToBucket('/', {
+        file,
+        fileName: file.filename,
+      });
+      return result;
+    } catch (error) {
+      console.error(error.message, error.stack);
+    }
   }
 }

@@ -13,6 +13,7 @@ import { ComicsModule } from './comics/comics.module';
 import { CategoriesModule } from './categories/categories.module';
 import configuration from './config/configuration';
 import { JwtModule } from '@nestjs/jwt';
+import { FileUploadModule } from './core/file-upload/file-upload.module';
 
 @Module({
   imports: [
@@ -29,6 +30,7 @@ import { JwtModule } from '@nestjs/jwt';
     ComicsModule,
     CategoriesModule,
     JwtModule.register({ global: true }),
+    FileUploadModule,
   ],
   controllers: [AppController],
   providers: [AppService],

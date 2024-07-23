@@ -29,8 +29,10 @@ export class UsersService {
     private followsService: FollowsService,
   ) {}
 
-  async doesUserExist(userId: Types.ObjectId) {
-    return await this.userModel.exists({ _id: userId });
+  async doesUserExist(userId: Types.ObjectId, options?: mongoose.SaveOptions) {
+    return await this.userModel
+      .exists({ _id: userId })
+      .session(options?.session);
   }
 
   async getUserById(userId: mongoose.Types.ObjectId) {

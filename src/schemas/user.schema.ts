@@ -4,6 +4,7 @@ import { PasswordCredential } from './password-credential.schema';
 import { FollowingList } from './following-list.schema';
 import { Followed } from './followed.schema';
 import { Role } from 'src/enum/roles.enum';
+import { ComicCreationList } from './comic-creation-list.schema';
 const MongooseDelete = require('mongoose-delete'); // Do not change to `import` statement
 
 @Schema({
@@ -42,6 +43,12 @@ export class User {
     ref: Followed.name,
   })
   followed: Types.ObjectId;
+
+  @Prop({
+    type: Types.ObjectId,
+    ref: ComicCreationList.name,
+  })
+  comicCreationList: Types.ObjectId;
 
   @Prop({ default: Date.now() })
   createdAt: Date;

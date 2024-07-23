@@ -4,7 +4,7 @@ import { UsersModule } from 'src/users/users.module';
 import { SharedModule } from 'src/shared/shared.module';
 import { FileSystemModule } from 'src/file-system/file-system.module';
 import { AuthService } from './auth.service';
-import { JwtModule, JwtService } from '@nestjs/jwt';
+import { JwtModule } from '@nestjs/jwt';
 import { LocalStrategy } from './strategy/local.strategy';
 import { RefreshTokenStrategy } from './strategy/refresh-token.strategy';
 import { AccessTokenStrategy } from './strategy/access-token.strategy';
@@ -18,11 +18,12 @@ import {
   PasswordCredentialSchema,
 } from 'src/schemas/password-credential.schema';
 import { RoleGuard } from './guard/roles.guard';
-import { UsersService } from 'src/users/users.service';
+import { FileUploadModule } from 'src/core/file-upload/file-upload.module';
 
 @Global()
 @Module({
   imports: [
+    FileUploadModule,
     UsersModule,
     FileSystemModule,
     SharedModule,

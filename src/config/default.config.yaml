@@ -1,3 +1,9 @@
 resource:
   following-list:
     page-limit: 20
+
+storage:
+  bucket-name: devstorage
+  region: 'us-west-002'
+  id: 00262c752b929930000000001
+  app-key: K002TUDmzC5T4N9Ua/JCxma2FlT/RZM
