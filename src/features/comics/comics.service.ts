@@ -11,6 +11,9 @@ import { ComicCreationList } from 'src/shared/schemas/comic-creation-list.schema
 import { User } from 'src/shared/schemas/user.schema';
 import { ComicCreationListNotFoundError } from './error/comic-creation-list-not-found.error';
 import { Category } from 'src/shared/schemas/category.schema';
+import { UpdateComicDto } from './dto/request/update-comic.dto';
+import { UpdateResourceError } from 'src/common/errors/update-resource.error';
+import { ResourceNotFoundError } from 'src/common/errors/resource-not-found.error';
 
 @Injectable()
 export class ComicsService {
@@ -25,6 +28,15 @@ export class ComicsService {
     @InjectModel(ComicCreationList.name)
     private comicCreationListModel: mongoose.Model<ComicCreationList>,
   ) {}
+
+  /**
+   * Gets the userId of a comic's author.
+   */
+  async getComicAuthor(comicId: Types.ObjectId) {
+    const comic = await this.comicModel.findOne({ _id: comicId });
+    if (!comic) throw new ResourceNotFoundError('Comic not found');
+    return comic.author;
+  }
 
   /**
    * Creates a comic document.
@@ -100,6 +112,31 @@ export class ComicsService {
     } catch (err) {
       this.logger.error(err.message);
       throw err;
+    } finally {
+      await session.endSession();
+    }
+  }
+
+  /**
+   * Updates a comic's properties
+   */
+  async updateComic(comicId: Types.ObjectId, updateComicDto: UpdateComicDto) {
+    const session = await this.comicModel.db.startSession();
+    try {
+      const updatedComic = await session.withTransaction(async () => {
+        return await this.comicModel.findOneAndUpdate(
+          { _id: comicId },
+          {
+            ...updateComicDto,
+          },
+          { session, new: true },
+        );
+      });
+      this.logger.log(`Comic details updated: ${updatedComic.id}`);
+      return updatedComic;
+    } catch (error) {
+      this.logger.error(error.message);
+      throw new UpdateResourceError('Error updating comic.');
     } finally {
       await session.endSession();
     }

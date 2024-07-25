@@ -16,7 +16,7 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
-import { AccessTokenGuard } from 'src/features/auth/guards/access-token.guard';
+import { AccessTokenGuard } from 'src/shared/auth/guards/access-token.guard';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { memoryStorage } from 'multer';
 import { FileSystemService } from 'src/shared/file-system/file-system.service';
@@ -26,7 +26,7 @@ import { HexStrToMongoOIDTransformPipe } from 'src/common/pipes/hex-str-to-mongo
 import { UserNotFoundError } from 'src/common/errors/user-not-found.error';
 import { IdentityNotMatchError } from 'src/common/errors/identity-not-match.error';
 import { UserPublicDetailsDto } from './dtos/response/user-public-details.dto';
-import { RoleGuard } from 'src/features/auth/guards/roles.guard';
+import { RoleGuard } from 'src/shared/auth/guards/roles.guard';
 import { Roles } from 'src/common/decorators/roles.decorator';
 import { Role } from 'src/common/enum/roles.enum';
 import { FileTypeWhiteListFilter } from 'src/common/filters/file-type-whitelist.filter';
@@ -117,8 +117,6 @@ export class UsersController {
       };
     } catch (error) {
       this.logger.error('Error creating user.', error.stack);
-      if (file) this.fileSystemService.removeFile(file.path);
-
       if (error instanceof BadRequestException) {
         throw error;
       }

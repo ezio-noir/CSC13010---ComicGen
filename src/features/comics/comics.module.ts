@@ -2,26 +2,25 @@ import { Module } from '@nestjs/common';
 import { ComicsService } from './comics.service';
 import { ComicsController } from './comics.controller';
 import { MongooseModule } from '@nestjs/mongoose';
-import { Comic, ComicSchema } from 'src/shared/schemas/comic.schema';
+import { ComicSchema } from 'src/shared/schemas/comic.schema';
 import { CategoriesModule } from 'src/features/categories/categories.module';
-import { AuthModule } from 'src/features/auth/auth.module';
+import { AuthModule } from 'src/shared/auth/auth.module';
 import { UsersModule } from '../users/users.module';
-import {
-  ComicCreationList,
-  ComicCreationListSchema,
-} from 'src/shared/schemas/comic-creation-list.schema';
-import { User, UserSchema } from 'src/shared/schemas/user.schema';
-import { Category, CategorySchema } from 'src/shared/schemas/category.schema';
+import { ComicCreationListSchema } from 'src/shared/schemas/comic-creation-list.schema';
+import { UserSchema } from 'src/shared/schemas/user.schema';
+import { CategorySchema } from 'src/shared/schemas/category.schema';
+import { StorageModule } from 'src/shared/storage/storage.module';
 
 @Module({
   imports: [
     MongooseModule.forFeature([
       { name: 'User', schema: UserSchema },
-      { name: Category.name, schema: CategorySchema },
+      { name: 'Category', schema: CategorySchema },
       { name: 'Comic', schema: ComicSchema },
-      { name: ComicCreationList.name, schema: ComicCreationListSchema },
+      { name: 'ComicCreationList', schema: ComicCreationListSchema },
     ]),
     CategoriesModule,
+    StorageModule,
     AuthModule,
     UsersModule,
   ],

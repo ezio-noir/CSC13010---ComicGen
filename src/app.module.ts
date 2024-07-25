@@ -1,7 +1,7 @@
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { AuthModule } from './features/auth/auth.module';
+import { AuthModule } from './shared/auth/auth.module';
 import { DatabaseModule } from './shared/database/database.module';
 import { UsersModule } from './features/users/users.module';
 import { FileSystemModule } from './shared/file-system/file-system.module';
