@@ -3,6 +3,8 @@ import {
   Body,
   Controller,
   Get,
+  HttpException,
+  InternalServerErrorException,
   Logger,
   NotFoundException,
   Param,
@@ -33,16 +35,20 @@ export class FollowsController {
   @Get(':userId/following')
   async getFollowingUsers(
     @Req() req,
-    @Param('userId') userId,
+    @Param('userId', HexStrToMongoOIDTransformPipe) userId,
     @Query() paginationQuery: PaginationQueryDto,
   ) {
     try {
-      await this.followsService.getFollowings(
-        Types.ObjectId.createFromHexString(userId),
+      const followingList = await this.followsService.getFollowings(
+        userId,
         paginationQuery,
       );
+      return {
+        data: followingList,
+      };
     } catch (err) {
-      console.log(err);
+      this.logger.error(err.message);
+      throw new InternalServerErrorException();
     }
   }
 

@@ -31,97 +31,100 @@ export class FollowsService {
     );
   }
 
-  async createFollowingList(options?: mongoose.SaveOptions) {
-    try {
-      const followingList = new this.followingListModel({
-        followingUsers: [],
-      });
-      return await followingList.save(options);
-    } catch (err) {
-      this.logger.error(err.message);
-      throw new CreateFollowingListError();
-    }
-  }
+  // async createFollowingList(options?: mongoose.SaveOptions) {
+  //   try {
+  //     const followingList = new this.followingListModel({
+  //       followingUsers: [],
+  //     });
+  //     return await followingList.save(options);
+  //   } catch (err) {
+  //     this.logger.error(err.message);
+  //     throw new CreateFollowingListError();
+  //   }
+  // }
 
-  async createFollowed(options?: mongoose.SaveOptions) {
-    try {
-      const followed = new this.followedModel({
-        followerCount: 0,
-      });
-      return await followed.save(options);
-    } catch (err) {
-      this.logger.error(err.message);
-      throw new CreateFollowedError();
-    }
-  }
+  // async createFollowed(options?: mongoose.SaveOptions) {
+  //   try {
+  //     const followed = new this.followedModel({
+  //       followerCount: 0,
+  //     });
+  //     return await followed.save(options);
+  //   } catch (err) {
+  //     this.logger.error(err.message);
+  //     throw new CreateFollowedError();
+  //   }
+  // }
 
   async getFollowings(
     userId: Types.ObjectId,
     paginationQuery: PaginationQueryDto,
   ) {
     try {
+      const user = await this.userModel.findOne({ _id: userId });
+      if (!user) throw new UserNotFoundError();
+
       const page = paginationQuery.page ? paginationQuery.page : 1;
       const limit = paginationQuery.limit
         ? Math.min(paginationQuery.limit, this.PAGE_LIMIT)
         : this.PAGE_LIMIT;
       const offset = (page - 1) * limit;
-      console.log(userId);
-      console.log(offset, limit);
+
       const followingList = await this.followingListModel
-        .find({
-          user: userId,
+        .findOne({
+          _id: user.followingList,
         })
         .skip(offset)
         .limit(limit);
-      console.log(followingList);
-    } catch (err) {}
+      return followingList;
+    } catch (err) {
+      this.logger.error(err.message);
+      throw new Error();
+    }
   }
 
   async setFollow(sourceUserId: Types.ObjectId, targetUserId: Types.ObjectId) {
     const session = await this.followingListModel.db.startSession();
-    session.startTransaction();
     try {
-      const sourceUser = await this.userModel
-        .findById(sourceUserId)
-        .session(session);
-      if (!sourceUser) throw new UserNotFoundError();
+      await session.withTransaction(async () => {
+        const sourceUser = await this.userModel
+          .findOne({ _id: sourceUserId })
+          .session(session);
+        if (!sourceUser) throw new UserNotFoundError();
 
-      const targetUser = await this.userModel
-        .findById(targetUserId)
-        .session(session);
-      if (!targetUser) throw new UserNotFoundError();
+        const targetUser = await this.userModel
+          .findOne({ _id: targetUserId })
+          .session(session);
+        if (!targetUser) throw new UserNotFoundError();
 
-      const followingList = await this.followingListModel
-        .findById(sourceUser.followingList)
-        .session(session);
-      if (!followingList) throw new FollowingListNotExistError();
-      if (followingList.followingUsers.includes(targetUserId))
-        throw new AlreadyFollowedError();
+        const followingList = await this.followingListModel
+          .findOne({ _id: sourceUser.followingList })
+          .session(session);
+        if (!followingList) throw new FollowingListNotExistError();
+        if (followingList.followingUsers.includes(targetUserId))
+          throw new AlreadyFollowedError();
 
-      const followed = await this.followedModel
-        .findById(targetUser.followed)
-        .session(session);
-      if (!followed) throw new FollowedNotExistError();
+        const followed = await this.followedModel
+          .findOne({ _id: targetUser.followed })
+          .session(session);
+        if (!followed) throw new FollowedNotExistError();
 
-      await this.followingListModel.findByIdAndUpdate(
-        followingList._id,
-        { $addToSet: { followingUsers: targetUserId } },
-        { session },
-      );
+        await this.followingListModel.findByIdAndUpdate(
+          followingList._id,
+          { $addToSet: { followingUsers: targetUserId } },
+          { session },
+        );
 
-      await this.followedModel.findByIdAndUpdate(
-        followed._id,
-        { $inc: { followerCount: 1 } },
-        { session },
-      );
-
-      await session.commitTransaction();
+        await this.followedModel.findByIdAndUpdate(
+          followed._id,
+          { $inc: { followerCount: 1 } },
+          { session },
+        );
+      });
 
       this.logger.log(
         `Follow set: ${sourceUserId.toString()} -> ${targetUserId.toString()}`,
       );
     } catch (err) {
-      await session.abortTransaction();
       this.logger.error(err.message);
       throw err;
     } finally {
@@ -134,53 +137,51 @@ export class FollowsService {
     targetUserId: Types.ObjectId,
   ) {
     const session = await this.userModel.db.startSession();
-    session.startTransaction();
     try {
-      const sourceUser = await this.userModel
-        .findById(sourceUserId)
-        .session(session);
-      if (!sourceUser) throw new UserNotFoundError();
+      await session.withTransaction(async () => {
+        const sourceUser = await this.userModel
+          .findOne({ _id: sourceUserId })
+          .session(session);
+        if (!sourceUser) throw new UserNotFoundError();
 
-      const targetUser = await this.userModel
-        .findById(targetUserId)
-        .session(session);
-      if (!targetUser) throw new UserNotFoundError();
+        const targetUser = await this.userModel
+          .findOne({ _id: targetUserId })
+          .session(session);
+        if (!targetUser) throw new UserNotFoundError();
 
-      const followingList = await this.followingListModel
-        .findById(sourceUser.followingList)
-        .session(session);
-      if (!followingList) throw new FollowingListNotExistError();
-      if (!followingList.followingUsers.includes(targetUserId))
-        throw new NotFollowedError();
+        const followingList = await this.followingListModel
+          .findOne({ _id: sourceUser.followingList })
+          .session(session);
+        if (!followingList) throw new FollowingListNotExistError();
+        if (!followingList.followingUsers.includes(targetUserId))
+          throw new NotFollowedError();
 
-      const followed = await this.followedModel
-        .findById(targetUser.followed)
-        .session(session);
-      if (!followed) throw new FollowedNotExistError();
+        const followed = await this.followedModel
+          .findOne({ _id: targetUser.followed })
+          .session(session);
+        if (!followed) throw new FollowedNotExistError();
 
-      await this.followingListModel.findByIdAndUpdate(
-        followingList._id,
-        { $pull: { followingUsers: targetUserId } },
-        { session },
-      );
+        await this.followingListModel.findByIdAndUpdate(
+          followingList._id,
+          { $pull: { followingUsers: targetUserId } },
+          { session },
+        );
 
-      await this.followedModel.findByIdAndUpdate(
-        followed._id,
-        { $inc: { followerCount: -1 } },
-        { session },
-      );
-
-      await session.commitTransaction();
-
+        await this.followedModel.findByIdAndUpdate(
+          followed._id,
+          { $inc: { followerCount: -1 } },
+          { session },
+        );
+      });
       this.logger.log(
         `Follow unset: ${sourceUserId.toString()} x->x ${targetUserId.toString()}`,
       );
     } catch (err) {
-      await session.abortTransaction();
+      console.log(err);
       this.logger.error(err.message);
       throw err;
     } finally {
-      session.endSession();
+      await session.endSession();
     }
   }
 }

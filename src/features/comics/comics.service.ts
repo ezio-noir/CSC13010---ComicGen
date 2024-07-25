@@ -21,7 +21,7 @@ export class ComicsService {
     private usersService: UsersService,
     @InjectModel('User') private userModel: mongoose.Model<User>,
     @InjectModel(Category.name) private categoryModel: mongoose.Model<Category>,
-    @InjectModel(Comic.name) private comicModel: mongoose.Model<Comic>,
+    @InjectModel('Comic') private comicModel: mongoose.Model<Comic>,
     @InjectModel(ComicCreationList.name)
     private comicCreationListModel: mongoose.Model<ComicCreationList>,
   ) {}

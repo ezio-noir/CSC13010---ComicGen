@@ -18,7 +18,7 @@ import { Category, CategorySchema } from 'src/shared/schemas/category.schema';
     MongooseModule.forFeature([
       { name: 'User', schema: UserSchema },
       { name: Category.name, schema: CategorySchema },
-      { name: Comic.name, schema: ComicSchema },
+      { name: 'Comic', schema: ComicSchema },
       { name: ComicCreationList.name, schema: ComicCreationListSchema },
     ]),
     CategoriesModule,
