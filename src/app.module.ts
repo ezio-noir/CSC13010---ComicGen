@@ -1,26 +1,24 @@
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { AuthModule } from './auth/auth.module';
-import { DatabaseModule } from './database/database.module';
-import { UsersModule } from './users/users.module';
-import { SharedModule } from './shared/shared.module';
-import { FileSystemModule } from './file-system/file-system.module';
-import { FollowsModule } from './follows/follows.module';
+import { AuthModule } from './features/auth/auth.module';
+import { DatabaseModule } from './shared/database/database.module';
+import { UsersModule } from './features/users/users.module';
+import { FileSystemModule } from './shared/file-system/file-system.module';
+import { FollowsModule } from './features/follows/follows.module';
 import { ApiLoggingMiddleware } from './middlewares/api-logging.middleware';
 import { ConfigModule } from '@nestjs/config';
-import { ComicsModule } from './comics/comics.module';
-import { CategoriesModule } from './categories/categories.module';
+import { ComicsModule } from './features/comics/comics.module';
+import { CategoriesModule } from './features/categories/categories.module';
 import configuration from './config/configuration';
 import { JwtModule } from '@nestjs/jwt';
-import { FileUploadModule } from './core/file-upload/file-upload.module';
+import { StorageModule } from './shared/storage/storage.module';
 
 @Module({
   imports: [
     AuthModule,
     DatabaseModule,
     UsersModule,
-    SharedModule,
     FileSystemModule,
     FollowsModule,
     ConfigModule.forRoot({
@@ -30,7 +28,7 @@ import { FileUploadModule } from './core/file-upload/file-upload.module';
     ComicsModule,
     CategoriesModule,
     JwtModule.register({ global: true }),
-    FileUploadModule,
+    StorageModule,
   ],
   controllers: [AppController],
   providers: [AppService],
