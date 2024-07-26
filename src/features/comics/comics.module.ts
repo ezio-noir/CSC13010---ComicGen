@@ -10,6 +10,7 @@ import { ComicCreationListSchema } from 'src/shared/schemas/comic-creation-list.
 import { UserSchema } from 'src/shared/schemas/user.schema';
 import { CategorySchema } from 'src/shared/schemas/category.schema';
 import { StorageModule } from 'src/shared/storage/storage.module';
+import { ComicStatisticsSchema } from 'src/shared/schemas/comic-statistics.schema';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { StorageModule } from 'src/shared/storage/storage.module';
       { name: 'Category', schema: CategorySchema },
       { name: 'Comic', schema: ComicSchema },
       { name: 'ComicCreationList', schema: ComicCreationListSchema },
+      { name: 'ComicStatistics', schema: ComicStatisticsSchema },
     ]),
     CategoriesModule,
     StorageModule,

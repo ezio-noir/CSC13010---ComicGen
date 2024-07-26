@@ -1,12 +1,16 @@
-import { IsInt, IsOptional, Min } from 'class-validator';
+import { Transform } from 'class-transformer';
+import { IsBoolean, IsInt, IsOptional } from 'class-validator';
 
-export class PaginationQueryDto {
+export class QueryDto {
   @IsOptional()
-  @IsInt()
+  @Transform(({ value }) => parseInt(value))
   page?: number;
 
   @IsOptional()
-  @Min(1)
-  @IsInt()
+  @Transform(({ value }) => parseInt(value))
   limit?: number;
+
+  @IsOptional()
+  @Transform(({ value }) => value === 'true')
+  populate?: boolean;
 }

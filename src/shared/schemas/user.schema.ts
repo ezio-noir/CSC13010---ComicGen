@@ -1,9 +1,9 @@
-import mongoose, { Types } from 'mongoose';
+import mongoose, { InferSchemaType, Types } from 'mongoose';
 import { Role } from 'src/common/enum/roles.enum';
 import { SoftDeleteDocument } from 'mongoose-delete';
 const MongooseDelete = require('mongoose-delete'); // Do not change to `import` statement
 
-export interface User extends SoftDeleteDocument {
+export interface IUser extends SoftDeleteDocument {
   _id: Types.ObjectId;
   username: string;
   displayName?: string;
@@ -11,6 +11,7 @@ export interface User extends SoftDeleteDocument {
   avatar: string;
   followingList: Types.ObjectId;
   followed: Types.ObjectId;
+  subscribeList: Types.ObjectId;
   comicCreationList: Types.ObjectId;
   createdAt: Date;
   updatedAt: Date;
@@ -18,7 +19,7 @@ export interface User extends SoftDeleteDocument {
   roles: Role[];
 }
 
-const UserSchema = new mongoose.Schema<User>(
+const UserSchema = new mongoose.Schema<IUser>(
   {
     username: { type: String, unique: true },
     displayName: { type: String, unique: true },
@@ -26,6 +27,7 @@ const UserSchema = new mongoose.Schema<User>(
     avatar: { type: String, unique: true },
     followingList: { type: 'ObjectId', ref: 'FollowingList' },
     followed: { type: 'ObjectId', ref: 'Followed' },
+    subscribeList: { type: 'ObjectId', ref: 'SubscribeList' },
     comicCreationList: { type: 'ObjectId', ref: 'ComicCreationList' },
     createdAt: { type: Date, default: Date.now() },
     roles: { type: [String], enum: Object.values(Role), default: [Role.USER] },
@@ -33,5 +35,7 @@ const UserSchema = new mongoose.Schema<User>(
   { timestamps: true },
 );
 UserSchema.plugin(MongooseDelete, { deletedAt: true, overrideMethods: true });
+
+export type User = InferSchemaType<typeof UserSchema>;
 
 export { UserSchema };

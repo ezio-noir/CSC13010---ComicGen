@@ -1,10 +1,7 @@
-import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Types } from 'mongoose';
+import mongoose, { InferSchemaType, Types } from 'mongoose';
 
-@Schema()
-export class FollowingList {
-  @Prop({ type: [{ type: Types.ObjectId, ref: 'User' }] })
-  followingUsers: Types.ObjectId[];
-}
+export const FollowingListSchema = new mongoose.Schema({
+  followingUsers: { type: [{ type: Types.ObjectId, ref: 'User' }] },
+});
 
-export const FollowingListSchema = SchemaFactory.createForClass(FollowingList);
+export type FollowingList = InferSchemaType<typeof FollowingListSchema>;

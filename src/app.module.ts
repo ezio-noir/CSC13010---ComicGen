@@ -13,6 +13,7 @@ import { CategoriesModule } from './features/categories/categories.module';
 import configuration from './config/configuration';
 import { JwtModule } from '@nestjs/jwt';
 import { StorageModule } from './shared/storage/storage.module';
+import { SubscribesModule } from './features/subscribes/subscribes.module';
 
 @Module({
   imports: [
@@ -29,6 +30,7 @@ import { StorageModule } from './shared/storage/storage.module';
     CategoriesModule,
     JwtModule.register({ global: true }),
     StorageModule,
+    SubscribesModule,
   ],
   controllers: [AppController],
   providers: [AppService],

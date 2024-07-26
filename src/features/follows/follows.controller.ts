@@ -8,11 +8,15 @@ import {
   Logger,
   NotFoundException,
   Param,
+  ParseBoolPipe,
+  ParseIntPipe,
   Patch,
   Query,
   Req,
   UnauthorizedException,
   UseGuards,
+  UsePipes,
+  ValidationPipe,
 } from '@nestjs/common';
 import { FollowsService } from './follows.service';
 import { Types } from 'mongoose';
@@ -22,7 +26,7 @@ import { IdentityNotMatchError } from 'src/common/errors/identity-not-match.erro
 import { NotFollowedError } from './error/not-followed.error';
 import { FollowingListNotExistError } from './error/following-list-not-exist.error';
 import { FollowedNotExistError } from './error/followed-not-exist.error';
-import { PaginationQueryDto } from 'src/common/dto/pagination-query.dto';
+import { QueryDto } from 'src/common/dto/pagination-query.dto';
 import { HexStrToMongoOIDTransformPipe } from 'src/common/pipes/hex-str-to-mongo-oid-transform.pipe';
 
 @Controller('follows')
@@ -33,15 +37,16 @@ export class FollowsController {
 
   @UseGuards(AccessTokenGuard)
   @Get(':userId/following')
+  @UsePipes(new ValidationPipe({ transform: true }))
   async getFollowingUsers(
     @Req() req,
     @Param('userId', HexStrToMongoOIDTransformPipe) userId,
-    @Query() paginationQuery: PaginationQueryDto,
+    @Query() queryDto: QueryDto,
   ) {
     try {
       const followingList = await this.followsService.getFollowings(
         userId,
-        paginationQuery,
+        queryDto,
       );
       return {
         data: followingList,
@@ -49,6 +54,19 @@ export class FollowsController {
     } catch (err) {
       this.logger.error(err.message);
       throw new InternalServerErrorException();
+    }
+  }
+
+  @UseGuards(AccessTokenGuard)
+  @Get(':userId/followed')
+  async getFollowerCount(
+    @Param('userId', HexStrToMongoOIDTransformPipe) userId,
+  ) {
+    try {
+      return await this.followsService.getFollowerCount(userId);
+    } catch (error) {
+      this.logger.error(error.message);
+      throw error;
     }
   }
 

@@ -18,6 +18,7 @@ export interface Comic extends SoftDeleteDocument {
   cover: string;
   status: ComicStatus;
   categories: Types.ObjectId[];
+  statistics: Types.ObjectId;
 }
 
 const ComicSchema = new mongoose.Schema<Comic>({
@@ -30,29 +31,9 @@ const ComicSchema = new mongoose.Schema<Comic>({
     default: ComicStatus.DRAFT,
   },
   categories: { type: ['ObjectId'], default: [] },
+  statistics: { type: 'ObjectId', ref: 'ComicStatistics' },
 });
 
-// @Schema({
-//   timestamps: true,
-//   toJSON: {
-//     versionKey: false,
-//   },
-// })
-// export class Comic {
-//   @Prop()
-//   title: string;
-
-//   @Prop({ type: Types.ObjectId, ref: 'User' })
-//   author: Types.ObjectId;
-
-//   @Prop({ enum: ComicStatus, default: ComicStatus.DRAFT })
-//   status: ComicStatus;
-
-//   @Prop({ type: [{ type: Types.ObjectId, ref: 'Category' }] })
-//   categories: Types.ObjectId[];
-// }
-
-// const ComicSchema = SchemaFactory.createForClass(Comic);
 ComicSchema.plugin(MongooseDelete, { deletedAt: true, overrideMethods: true });
 
 export { ComicSchema };

@@ -6,14 +6,15 @@ import { CreateComicDto } from './dto/request/create-comic.dto';
 import { CategoriesService } from 'src/features/categories/categories.service';
 import { UsersService } from '../users/users.service';
 import { UserNotFoundError } from 'src/common/errors/user-not-found.error';
-import { CreateComicError } from './error/create-comic.error';
+import { CreateComicError } from './errors/create-comic.error';
 import { ComicCreationList } from 'src/shared/schemas/comic-creation-list.schema';
 import { User } from 'src/shared/schemas/user.schema';
-import { ComicCreationListNotFoundError } from './error/comic-creation-list-not-found.error';
+import { ComicCreationListNotFoundError } from './errors/comic-creation-list-not-found.error';
 import { Category } from 'src/shared/schemas/category.schema';
 import { UpdateComicDto } from './dto/request/update-comic.dto';
 import { UpdateResourceError } from 'src/common/errors/update-resource.error';
 import { ResourceNotFoundError } from 'src/common/errors/resource-not-found.error';
+import { ComicStatistics } from 'src/shared/schemas/comic-statistics.schema';
 
 @Injectable()
 export class ComicsService {
@@ -27,6 +28,8 @@ export class ComicsService {
     @InjectModel('Comic') private comicModel: mongoose.Model<Comic>,
     @InjectModel(ComicCreationList.name)
     private comicCreationListModel: mongoose.Model<ComicCreationList>,
+    @InjectModel('ComicStatistics')
+    private comicStatisticsModel: mongoose.Model<ComicStatistics>,
   ) {}
 
   /**
@@ -69,10 +72,19 @@ export class ComicsService {
         });
         await newComic.save({ session });
 
+        // Create new comic statistics document
+        const newComicStatistics = new this.comicStatisticsModel({
+          commentCount: 0,
+          favoriteCount: 0,
+          subscribeCount: 0,
+        });
+        await newComicStatistics.save({ session });
+        newComic.statistics = newComicStatistics._id;
+
         // Add the new comic to the comic creation list (create a new list if required)
         const comicCreationListId = author.comicCreationList;
         const comicCreationList = await (async () => {
-          if (!comicCreationList) {
+          if (!comicCreationListId) {
             const newComicCreationList = new this.comicCreationListModel({
               comicList: [newComic._id],
             });
@@ -103,6 +115,8 @@ export class ComicsService {
             })
             .session(session);
         }
+
+        await newComic.save({ session });
 
         return newComic;
       });

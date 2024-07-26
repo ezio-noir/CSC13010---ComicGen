@@ -4,7 +4,7 @@ import {
   FollowingList,
   FollowingListSchema,
 } from 'src/shared/schemas/following-list.schema';
-import { User, UserSchema } from 'src/shared/schemas/user.schema';
+import { UserSchema } from 'src/shared/schemas/user.schema';
 import { FollowsService } from './follows.service';
 import { FollowsController } from './follows.controller';
 import { Followed, FollowedSchema } from 'src/shared/schemas/followed.schema';
@@ -13,7 +13,7 @@ import { Followed, FollowedSchema } from 'src/shared/schemas/followed.schema';
   imports: [
     MongooseModule.forFeature([
       { name: 'User', schema: UserSchema },
-      { name: FollowingList.name, schema: FollowingListSchema },
+      { name: 'FollowingList', schema: FollowingListSchema },
       { name: Followed.name, schema: FollowedSchema },
     ]),
   ],

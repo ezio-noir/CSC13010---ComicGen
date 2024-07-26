@@ -6,13 +6,14 @@ import * as bcrypt from 'bcrypt';
 import { PasswordCredential } from 'src/shared/schemas/password-credential.schema';
 import { CreateUserDto } from './dtos/request/create-user.dto';
 import { UpdateUserDetailsDto } from './dtos/request/update-user-details.dto';
-import { FollowingList } from 'src/shared/schemas/following-list.schema';
 import { Followed } from 'src/shared/schemas/followed.schema';
 import { UserAlreadyExistsError } from './errors/user-already-exists.error';
 import { FollowsService } from 'src/features/follows/follows.service';
 import { UserNotFoundError } from 'src/common/errors/user-not-found.error';
 import { UpdateUserError } from './errors/update-user.error';
 import { SoftDeleteModel } from 'mongoose-delete';
+import { FollowingList } from 'src/shared/schemas/following-list.schema';
+import { SubscribeList } from 'src/shared/schemas/subscribe-list.schema';
 
 @Injectable()
 export class UsersService {
@@ -23,10 +24,11 @@ export class UsersService {
     @InjectModel('User') private userModel: SoftDeleteModel<User>,
     @InjectModel(PasswordCredential.name)
     private passwordCredentialModel: mongoose.Model<PasswordCredential>,
-    @InjectModel(FollowingList.name)
+    @InjectModel('FollowingList')
     private followingListModel: mongoose.Model<FollowingList>,
     @InjectModel(Followed.name) private followedModel: mongoose.Model<Followed>,
-    private followsService: FollowsService,
+    @InjectModel('SubscribeList')
+    private subscribeListModel: mongoose.Model<SubscribeList>,
   ) {}
 
   async doesUserExist(userId: Types.ObjectId, options?: mongoose.SaveOptions) {
@@ -98,6 +100,13 @@ export class UsersService {
         });
         await newFollowed.save({ session });
         newUser.followed = newFollowed._id;
+
+        // Create new subscribe list
+        const newSubscribeList = new this.subscribeListModel({
+          subscribeComics: [],
+        });
+        await newSubscribeList.save({ session });
+        newUser.subscribeList = newSubscribeList._id;
 
         await newUser.save({ session });
         return newUser;
