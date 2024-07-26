@@ -14,6 +14,7 @@ import configuration from './config/configuration';
 import { JwtModule } from '@nestjs/jwt';
 import { StorageModule } from './shared/storage/storage.module';
 import { SubscribesModule } from './features/subscribes/subscribes.module';
+import { ChaptersModule } from './features/chapters/chapters.module';
 
 @Module({
   imports: [
@@ -31,6 +32,7 @@ import { SubscribesModule } from './features/subscribes/subscribes.module';
     JwtModule.register({ global: true }),
     StorageModule,
     SubscribesModule,
+    ChaptersModule,
   ],
   controllers: [AppController],
   providers: [AppService],
