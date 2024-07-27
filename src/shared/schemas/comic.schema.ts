@@ -17,6 +17,7 @@ export interface Comic extends SoftDeleteDocument {
   author: Types.ObjectId;
   cover: string;
   status: ComicStatus;
+  chapterList: Types.ObjectId;
   categories: Types.ObjectId[];
   statistics: Types.ObjectId;
 }
@@ -30,7 +31,8 @@ const ComicSchema = new mongoose.Schema<Comic>({
     enum: Object.values(ComicStatus),
     default: ComicStatus.DRAFT,
   },
-  categories: { type: ['ObjectId'], default: [] },
+  chapterList: { type: 'ObjectId', ref: 'ComicChapters' },
+  categories: { type: ['ObjectId'], ref: 'Category', default: [] },
   statistics: { type: 'ObjectId', ref: 'ComicStatistics' },
 });
 

@@ -11,6 +11,7 @@ import { UserSchema } from 'src/shared/schemas/user.schema';
 import { CategorySchema } from 'src/shared/schemas/category.schema';
 import { StorageModule } from 'src/shared/storage/storage.module';
 import { ComicStatisticsSchema } from 'src/shared/schemas/comic-statistics.schema';
+import { ComicChaptersSchema } from 'src/shared/schemas/comic-chapters.schema';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { ComicStatisticsSchema } from 'src/shared/schemas/comic-statistics.schem
       { name: 'Comic', schema: ComicSchema },
       { name: 'ComicCreationList', schema: ComicCreationListSchema },
       { name: 'ComicStatistics', schema: ComicStatisticsSchema },
+      { name: 'ComicChapters', schema: ComicChaptersSchema },
     ]),
     CategoriesModule,
     StorageModule,

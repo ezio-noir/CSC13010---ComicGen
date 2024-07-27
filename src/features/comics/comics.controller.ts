@@ -54,12 +54,13 @@ export class ComicsController {
       const newComic = await (async () => {
         const newComic = await this.comicsService.createComic(createComicDto);
         if (!file) return newComic;
-        const coverUrl = await this.storageService.uploadFileToBucket(
+        const cover = await this.storageService.addRawResource(
+          newComic.author,
           'comicCover',
           file,
         );
         return await this.comicsService.updateComic(newComic._id, {
-          cover: coverUrl,
+          cover: cover.url,
         });
       })();
 
@@ -94,9 +95,13 @@ export class ComicsController {
       const author = await this.comicsService.getComicAuthor(comicId);
       if (!author.equals(userId)) throw new IdentityNotMatchError();
 
-      const coverUrl = await (async () => {
+      const cover = await (async () => {
         if (!file) return null;
-        return await this.storageService.uploadFileToBucket('comicCover', file);
+        return await this.storageService.addRawResource(
+          userId,
+          'comicCover',
+          file,
+        );
       })();
       const categories = dto?.categories?.map((category) =>
         Types.ObjectId.createFromHexString(category),
@@ -105,7 +110,7 @@ export class ComicsController {
       const updateObject = {
         ...dto,
         ...(categories && { categories }),
-        ...(coverUrl && { cover: coverUrl }),
+        ...(cover && { cover: cover.url }),
       };
 
       const updatedComic = await this.comicsService.updateComic(

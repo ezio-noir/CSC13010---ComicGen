@@ -92,16 +92,16 @@ export class UsersController {
       if (!(await this.usersService.doesUserExist(userId)))
         throw new UserNotFoundError();
 
-      const avatarUrl = await (async () => {
+      const avatar = await (async () => {
         if (!file) return null;
-        return await this.storageService.uploadFileToBucket('avatar', file);
+        return await this.storageService.addRawResource(userId, 'avatar', file);
       })();
 
       const updateObject =
-        avatarUrl != null
+        avatar != null
           ? {
               ...dto,
-              avatar: avatarUrl,
+              avatar: avatar.url,
             }
           : {
               ...dto,

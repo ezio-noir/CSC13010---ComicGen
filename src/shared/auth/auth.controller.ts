@@ -62,12 +62,13 @@ export class AuthController {
       const newUser = await (async () => {
         const newUser = await this.usersService.createUser({ ...dto });
         if (!file) return newUser;
-        const avatarUrl = await this.storageService.uploadFileToBucket(
+        const avatar = await this.storageService.addRawResource(
+          newUser._id,
           'avatar',
           file,
         );
         return await this.usersService.updateUser(newUser._id, {
-          avatar: avatarUrl,
+          avatar: avatar.url,
         });
       })();
       this.logger.log(`User registered: ${newUser._id}.`);
@@ -123,23 +124,5 @@ export class AuthController {
     return {
       message: 'Success',
     };
-  }
-
-  @Post('file-upload')
-  @UseInterceptors(
-    FileInterceptor('file', {
-      storage: memoryStorage(),
-    }),
-  )
-  async testFileUpload(@UploadedFile() file?: Express.Multer.File) {
-    try {
-      const result = await this.storageService.uploadFileToBucket(
-        'avatar',
-        file,
-      );
-      return result;
-    } catch (error) {
-      console.error(error.message, error.stack);
-    }
   }
 }

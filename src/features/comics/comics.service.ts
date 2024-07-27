@@ -15,6 +15,7 @@ import { UpdateComicDto } from './dto/request/update-comic.dto';
 import { UpdateResourceError } from 'src/common/errors/update-resource.error';
 import { ResourceNotFoundError } from 'src/common/errors/resource-not-found.error';
 import { ComicStatistics } from 'src/shared/schemas/comic-statistics.schema';
+import { ComicChapters } from 'src/shared/schemas/comic-chapters.schema';
 
 @Injectable()
 export class ComicsService {
@@ -30,6 +31,8 @@ export class ComicsService {
     private comicCreationListModel: mongoose.Model<ComicCreationList>,
     @InjectModel('ComicStatistics')
     private comicStatisticsModel: mongoose.Model<ComicStatistics>,
+    @InjectModel('ComicChapters')
+    private comicChaptersModel: mongoose.Model<ComicChapters>,
   ) {}
 
   /**
@@ -115,6 +118,13 @@ export class ComicsService {
             })
             .session(session);
         }
+
+        // Create comic chapter list
+        const newComicChapters = new this.comicChaptersModel({
+          chapters: [],
+        });
+        await newComicChapters.save({ session });
+        newComic.chapterList = newComicChapters._id;
 
         await newComic.save({ session });
 
