@@ -7,9 +7,9 @@ import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { StorageWriteError } from './error/storage-write.error';
 import { extname } from 'path';
-import mongoose, { Types } from 'mongoose';
+import mongoose from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
-import { RawResource } from '../schemas/raw-resource.schema';
+import { Resource } from '../schemas/resource.schema';
 import { PassThrough, Readable } from 'stream';
 
 @Injectable()
@@ -20,8 +20,8 @@ export class StorageService {
 
   constructor(
     private readonly configService: ConfigService,
-    @InjectModel('RawResource')
-    private rawResourceModel: mongoose.Model<RawResource>,
+    @InjectModel('Resource')
+    private resourceModel: mongoose.Model<Resource>,
   ) {
     const storageConfig = this.configService.get('storage');
     this.client = new S3Client({
@@ -35,33 +35,35 @@ export class StorageService {
     this.bucketName = storageConfig['bucket_name'];
   }
 
-  async addRawResource(
-    owner: Types.ObjectId,
-    path: string,
-    file: Express.Multer.File,
-  ) {
-    const session = await this.rawResourceModel.db.startSession();
-    try {
-      const newRawResource = await session.withTransaction(async () => {
-        const newRawResource = new this.rawResourceModel({
-          owner: owner,
-        });
-        const url = await this.uploadFileToBucket(path, file);
-        newRawResource.url = url;
-        await newRawResource.save({ session });
-        return newRawResource;
-      });
-      this.logger.log(`Raw resource saved: ${newRawResource._id}`);
-      return newRawResource;
-    } catch (error) {
-      this.logger.error(error.message);
-      throw error;
-    } finally {
-      await session.endSession();
-    }
-  }
+  // async createResource(
+  //   owner: Types.ObjectId,
+  //   access: ResourceAccess,
+  //   path: string,
+  //   file: Express.Multer.File,
+  // ) {
+  //   const session = await this.resourceModel.db.startSession();
+  //   try {
+  //     const newResource = await session.withTransaction(async () => {
+  //       const newResource = new this.resourceModel({
+  //         owner: owner,
+  //         access: access,
+  //       });
+  //       const url = await this.uploadFileToBucket(path, file);
+  //       newResource.url = url;
+  //       await newResource.save({ session });
+  //       return newResource;
+  //     });
+  //     this.logger.log(`Raw resource saved: ${newResource._id}`);
+  //     return newResource;
+  //   } catch (error) {
+  //     this.logger.error(error.message);
+  //     throw error;
+  //   } finally {
+  //     await session.endSession();
+  //   }
+  // }
 
-  private async uploadFileToBucket(path: string, file: Express.Multer.File) {
+  async uploadFileToBucket(path: string, file: Express.Multer.File) {
     try {
       const extName = extname(file.originalname) || '';
       const key = `${path}/${Date.now().toString()}${extName}`;

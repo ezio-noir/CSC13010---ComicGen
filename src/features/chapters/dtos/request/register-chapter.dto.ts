@@ -9,6 +9,7 @@ export class RegisterChapterDto {
   chapterNumber: number;
   @IsOptional()
   title?: string;
+  @IsOptional()
   @IsArray()
-  pages: string[];
+  pages?: string[];
 }

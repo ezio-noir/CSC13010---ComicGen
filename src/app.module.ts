@@ -15,7 +15,8 @@ import { JwtModule } from '@nestjs/jwt';
 import { StorageModule } from './shared/storage/storage.module';
 import { SubscribesModule } from './features/subscribes/subscribes.module';
 import { ChaptersModule } from './features/chapters/chapters.module';
-import { ImagesModule } from './features/images/images.module';
+import { ProjectsModule } from './features/projects/projects.module';
+import { ResourcesModule } from './shared/resources/resources.module';
 
 @Module({
   imports: [
@@ -34,7 +35,8 @@ import { ImagesModule } from './features/images/images.module';
     StorageModule,
     SubscribesModule,
     ChaptersModule,
-    ImagesModule,
+    ProjectsModule,
+    ResourcesModule,
   ],
   controllers: [AppController],
   providers: [AppService],

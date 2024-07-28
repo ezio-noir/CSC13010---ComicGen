@@ -19,18 +19,18 @@ import { UsersService } from './users.service';
 import { AccessTokenGuard } from 'src/shared/auth/guards/access-token.guard';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { memoryStorage } from 'multer';
-import { FileSystemService } from 'src/shared/file-system/file-system.service';
 import { EditUserDetailsDto } from './dtos/request/edit-user-details.dto';
 import { Types } from 'mongoose';
 import { HexStrToMongoOIDTransformPipe } from 'src/common/pipes/hex-str-to-mongo-oid-transform.pipe';
 import { UserNotFoundError } from 'src/common/errors/user-not-found.error';
 import { IdentityNotMatchError } from 'src/common/errors/identity-not-match.error';
-import { UserPublicDetailsDto } from './dtos/response/user-public-details.dto';
 import { RoleGuard } from 'src/shared/auth/guards/roles.guard';
 import { Roles } from 'src/common/decorators/roles.decorator';
 import { Role } from 'src/common/enum/roles.enum';
 import { FileTypeWhiteListFilter } from 'src/common/filters/file-type-whitelist.filter';
 import { StorageService } from 'src/shared/storage/storage.service';
+import { ResourcesService } from 'src/shared/resources/resources.service';
+import { ResourceAccess } from 'src/shared/schemas/resource.schema';
 
 @Controller('users')
 export class UsersController {
@@ -39,7 +39,7 @@ export class UsersController {
   constructor(
     private storageService: StorageService,
     private usersService: UsersService,
-    private fileSystemService: FileSystemService,
+    private resourcesService: ResourcesService,
   ) {}
 
   @Roles(Role.USER)
@@ -52,14 +52,7 @@ export class UsersController {
         throw new NotFoundException('User does not exist.');
       }
       return {
-        data: new UserPublicDetailsDto({
-          id: user._id.toString(),
-          username: user.username,
-          displayName: user.displayName,
-          avatar: user.avatar,
-          createdAt: user.createdAt,
-          roles: user.roles,
-        }),
+        data: user,
       };
     } catch (err) {
       this.logger.error(err.message);
@@ -94,14 +87,19 @@ export class UsersController {
 
       const avatar = await (async () => {
         if (!file) return null;
-        return await this.storageService.addRawResource(userId, 'avatar', file);
+        return await this.resourcesService.createResource(
+          'avatart',
+          userId,
+          ResourceAccess.PUBLIC,
+          file,
+        );
       })();
 
       const updateObject =
         avatar != null
           ? {
               ...dto,
-              avatar: avatar.url,
+              avatar: avatar._id,
             }
           : {
               ...dto,

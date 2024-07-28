@@ -1,4 +1,5 @@
 import { IsOptional, IsString } from 'class-validator';
+import { Types } from 'mongoose';
 
 export class UpdateUserDetailsDto {
   @IsOptional()
@@ -6,6 +7,5 @@ export class UpdateUserDetailsDto {
   displayName?: string;
 
   @IsOptional()
-  @IsString()
-  avatar?: string;
+  avatar?: Types.ObjectId;
 }

@@ -8,7 +8,6 @@ import { CreateUserDto } from './dtos/request/create-user.dto';
 import { UpdateUserDetailsDto } from './dtos/request/update-user-details.dto';
 import { Followed } from 'src/shared/schemas/followed.schema';
 import { UserAlreadyExistsError } from './errors/user-already-exists.error';
-import { FollowsService } from 'src/features/follows/follows.service';
 import { UserNotFoundError } from 'src/common/errors/user-not-found.error';
 import { UpdateUserError } from './errors/update-user.error';
 import { SoftDeleteModel } from 'mongoose-delete';
@@ -73,6 +72,7 @@ export class UsersService {
         const newUser = new this.userModel({
           username: createUserDto.username,
           displayName: createUserDto.displayName,
+          projects: [],
         });
 
         // Create credential (username + password) document
@@ -92,7 +92,7 @@ export class UsersService {
           followingUsers: [],
         });
         await newFollowingList.save({ session });
-        newUser.followed = newFollowingList._id;
+        newUser.followingList = newFollowingList._id;
 
         // Create new followed document
         const newFollowed = new this.followedModel({

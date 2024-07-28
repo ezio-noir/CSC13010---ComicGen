@@ -22,11 +22,12 @@ import { CreateResourceError } from 'src/common/errors/create-resource.error';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { memoryStorage } from 'multer';
 import { FileTypeWhiteListFilter } from 'src/common/filters/file-type-whitelist.filter';
-import { StorageService } from 'src/shared/storage/storage.service';
 import { HexStrToMongoOIDTransformPipe } from 'src/common/pipes/hex-str-to-mongo-oid-transform.pipe';
 import { Types } from 'mongoose';
 import { IdentityNotMatchError } from 'src/common/errors/identity-not-match.error';
 import { EditComicDetailsDto } from './dto/request/edit-comic-details.dto';
+import { ResourcesService } from 'src/shared/resources/resources.service';
+import { ResourceAccess } from 'src/shared/schemas/resource.schema';
 
 @Controller('comics')
 export class ComicsController {
@@ -34,7 +35,7 @@ export class ComicsController {
 
   constructor(
     private readonly comicsService: ComicsService,
-    private readonly storageService: StorageService,
+    private readonly resourcesService: ResourcesService,
   ) {}
 
   @Post()
@@ -54,13 +55,14 @@ export class ComicsController {
       const newComic = await (async () => {
         const newComic = await this.comicsService.createComic(createComicDto);
         if (!file) return newComic;
-        const cover = await this.storageService.addRawResource(
-          newComic.author,
+        const cover = await this.resourcesService.createResource(
           'comicCover',
+          newComic.author,
+          ResourceAccess.PUBLIC,
           file,
         );
         return await this.comicsService.updateComic(newComic._id, {
-          cover: cover.url,
+          cover: cover._id,
         });
       })();
 
@@ -97,9 +99,10 @@ export class ComicsController {
 
       const cover = await (async () => {
         if (!file) return null;
-        return await this.storageService.addRawResource(
-          userId,
+        return await this.resourcesService.createResource(
           'comicCover',
+          userId,
+          ResourceAccess.PUBLIC,
           file,
         );
       })();
@@ -110,7 +113,7 @@ export class ComicsController {
       const updateObject = {
         ...dto,
         ...(categories && { categories }),
-        ...(cover && { cover: cover.url }),
+        ...(cover && { cover: cover._id }),
       };
 
       const updatedComic = await this.comicsService.updateComic(

@@ -2,7 +2,6 @@ import {
   BadRequestException,
   Body,
   Controller,
-  Get,
   HttpCode,
   HttpStatus,
   InternalServerErrorException,
@@ -17,19 +16,15 @@ import {
 import { RegisterDto } from './dtos/request/register.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { memoryStorage } from 'multer';
-import { FileSystemService } from 'src/shared/file-system/file-system.service';
 import { LocalAuthGuard } from './guards/local-auth.guard';
 import { AuthService } from './auth.service';
 import { Response } from 'express';
 import { RefreshTokenGuard } from './guards/refresh-token.guard';
-import { AccessTokenGuard } from './guards/access-token.guard';
-import { Roles } from 'src/common/decorators/roles.decorator';
-import { RoleGuard } from './guards/roles.guard';
-import { Role } from 'src/common/enum/roles.enum';
-import { StorageService } from 'src/shared/storage/storage.service';
 import { FileTypeWhiteListFilter } from 'src/common/filters/file-type-whitelist.filter';
 import { UsersService } from 'src/features/users/users.service';
 import { UserAlreadyExistsError } from 'src/features/users/errors/user-already-exists.error';
+import { ResourcesService } from '../resources/resources.service';
+import { ResourceAccess } from '../schemas/resource.schema';
 
 @Controller('auth')
 export class AuthController {
@@ -38,8 +33,7 @@ export class AuthController {
   constructor(
     private usersService: UsersService,
     private authService: AuthService,
-    private fileSystemService: FileSystemService,
-    private storageService: StorageService,
+    private resourcesService: ResourcesService,
   ) {}
 
   @Post('register')
@@ -62,13 +56,14 @@ export class AuthController {
       const newUser = await (async () => {
         const newUser = await this.usersService.createUser({ ...dto });
         if (!file) return newUser;
-        const avatar = await this.storageService.addRawResource(
-          newUser._id,
+        const avatar = await this.resourcesService.createResource(
           'avatar',
+          newUser._id,
+          ResourceAccess.PUBLIC,
           file,
         );
         return await this.usersService.updateUser(newUser._id, {
-          avatar: avatar.url,
+          avatar: avatar._id,
         });
       })();
       this.logger.log(`User registered: ${newUser._id}.`);
@@ -106,7 +101,7 @@ export class AuthController {
   }
 
   @UseGuards(RefreshTokenGuard)
-  @Post('refresh-tokens')
+  @Post('refreshTokens')
   async refreshTokens(@Req() req, @Res({ passthrough: true }) res: Response) {
     const tokens = await this.authService.issueTokens(req.user);
     await this.authService.updateRefreshToken(req.user.id, tokens.refreshToken);
@@ -114,15 +109,6 @@ export class AuthController {
     res.cookie('refreshToken', tokens.refreshToken, { httpOnly: true });
     return {
       message: 'Tokens refreshed successfully.',
-    };
-  }
-
-  @Get('role-test')
-  @Roles(Role.ADMIN)
-  @UseGuards(AccessTokenGuard, RoleGuard)
-  async roleAuthGuardTest() {
-    return {
-      message: 'Success',
     };
   }
 }
