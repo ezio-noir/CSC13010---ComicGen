@@ -1,3 +1,11 @@
+auth:
+  access_token:
+    secret: ACCESS_TOKEN_SECRET
+    expire: 30m
+  refresh_token:
+    secret: REFRESH_TOKEN_SECRET
+    expire: 7d
+
 resource:
   following_list:
     page_limit: 20
@@ -8,3 +16,8 @@ storage:
   endpoint: https://s3.us-west-002.backblazeb2.com 
   region: 'us-west-002'
   app_key: K002TUDmzC5T4N9Ua/JCxma2FlT/RZM
+
+ai:
+  endpoint: https://api.edenai.run/v2/image/generation
+  key: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiZWExZmNkMzUtZWQ3Yi00ZTVhLTgyY2MtZjQ1MjJiNzdiOWIzIiwidHlwZSI6ImFwaV90b2tlbiJ9.cRhZLMvbYeuJ3bhf1f4SZrTz2w2Pt4ZG0B4_-i7viCc
+  provider: amazon/titan-image-generator-v1_standard

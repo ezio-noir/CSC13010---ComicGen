@@ -5,9 +5,9 @@ import { PasswordCredential } from 'src/shared/schemas/password-credential.schem
 import * as bcrypt from 'bcrypt';
 import { UsersService } from 'src/features/users/users.service';
 import { JwtService } from '@nestjs/jwt';
-import { jwtConstants } from './constants/jwt.constants';
 import { RefreshToken } from 'src/shared/schemas/refresh-token.schema';
 import { Role } from 'src/common/enum/roles.enum';
+import { ConfigService } from '@nestjs/config';
 
 export interface TokenPayload {
   sub: string;
@@ -21,15 +21,33 @@ export class AuthService {
     [Role.USER]: 0x010,
     [Role.ADMIN]: 0x100,
   };
+  private readonly JWT_ACCESS_TOKEN_SECRET: string;
+  private readonly JWT_ACCESS_TOKEN_EXPIRE: string;
+  private readonly JWT_REFRESH_TOKEN_SECRET: string;
+  private readonly JWT_REFRESH_TOKEN_EXPIRE: string;
 
   constructor(
     private readonly usersService: UsersService,
     private readonly jwtService: JwtService,
+    private readonly configService: ConfigService,
     @InjectModel(PasswordCredential.name)
     private passwordCredentialModel: mongoose.Model<PasswordCredential>,
     @InjectModel(RefreshToken.name)
     private refreshTokenModel: mongoose.Model<RefreshToken>,
-  ) {}
+  ) {
+    this.JWT_ACCESS_TOKEN_SECRET = this.configService.get(
+      'auth.access_token.secret',
+    );
+    this.JWT_ACCESS_TOKEN_EXPIRE = this.configService.get(
+      'auth.access_token.expire',
+    );
+    this.JWT_REFRESH_TOKEN_SECRET = this.configService.get(
+      'auth.refresh_token.secret',
+    );
+    this.JWT_REFRESH_TOKEN_EXPIRE = this.configService.get(
+      'auth.refresh_token.expire',
+    );
+  }
 
   private checkPriority(roles: string[], requiredRoles: string[]) {
     const rolesPriority = roles.map((role) => this.rolePriorities[role]);
@@ -81,12 +99,12 @@ export class AuthService {
 
     return {
       accessToken: await this.jwtService.signAsync(payload, {
-        secret: jwtConstants.accessTokenSecret,
-        expiresIn: jwtConstants.accessTokenExpiration,
+        secret: this.JWT_ACCESS_TOKEN_SECRET,
+        expiresIn: this.JWT_ACCESS_TOKEN_EXPIRE,
       }),
       refreshToken: await this.jwtService.signAsync(payload, {
-        secret: jwtConstants.refreshTokenSecret,
-        expiresIn: jwtConstants.refreshTokenExpiration,
+        secret: this.JWT_REFRESH_TOKEN_SECRET,
+        expiresIn: this.JWT_REFRESH_TOKEN_EXPIRE,
       }),
     };
   }

@@ -17,6 +17,7 @@ import { SubscribesModule } from './features/subscribes/subscribes.module';
 import { ChaptersModule } from './features/chapters/chapters.module';
 import { ProjectsModule } from './features/projects/projects.module';
 import { ResourcesModule } from './shared/resources/resources.module';
+import { AiModule } from './features/ai/ai.module';
 
 @Module({
   imports: [
@@ -37,6 +38,7 @@ import { ResourcesModule } from './shared/resources/resources.module';
     ChaptersModule,
     ProjectsModule,
     ResourcesModule,
+    AiModule,
   ],
   controllers: [AppController],
   providers: [AppService],

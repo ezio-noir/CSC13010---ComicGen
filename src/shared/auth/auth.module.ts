@@ -18,6 +18,7 @@ import {
 } from 'src/shared/schemas/password-credential.schema';
 import { RoleGuard } from './guards/roles.guard';
 import { StorageModule } from 'src/shared/storage/storage.module';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 
 @Global()
 @Module({
@@ -25,7 +26,11 @@ import { StorageModule } from 'src/shared/storage/storage.module';
     StorageModule,
     UsersModule,
     FileSystemModule,
-    JwtModule.register({}),
+    JwtModule.registerAsync({
+      imports: [ConfigModule],
+      useFactory: async (configService: ConfigService) => ({}),
+      inject: [ConfigService],
+    }),
     MongooseModule.forFeature([
       {
         name: RefreshToken.name,
